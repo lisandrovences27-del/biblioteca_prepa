@@ -1,0 +1,285 @@
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+/* Quitamos espacios por defecto */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Fondo principal */
+body {
+  font-family: Arial, century;
+  background-color: #0B1742;
+}
+
+/* Contenedor principal */
+.container {
+  width: 100vw;
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  overflow: hidden;
+}
+
+/* Caja login */
+.login-box {
+  width: 100%;
+  max-width: 450px;
+
+  background-color: white;
+
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  box-shadow: 0px 10px 30px rgba(0,0,0,0.3);
+}
+
+/* Parte superior */
+.top-section {
+  background: linear-gradient(
+    135deg,
+    #A7201F,
+    #0B1742
+  );
+
+  color: white;
+
+  text-align: center;
+
+  padding: 40px 20px;
+}
+
+/* Círculo logo */
+.logo-circle {
+  width: 100px;
+  height: 100px;
+
+  background-color: rgba(255, 255, 255, 0.958);
+
+  color: #0B1742;
+
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin: auto auto 20px auto;
+
+  font-size: 35px;
+}
+
+/* Imagen logo */
+.logo-img {
+  width: 85px;
+
+  height: 73px;
+
+  object-fit: contain;
+}
+
+/* Título */
+.top-section h1 {
+  font-size: 28px;
+
+  margin-bottom: 10px;
+}
+
+/* Subtitulo */
+.top-section p {
+  opacity: 0.8;
+}
+
+/* Formulario */
+.form-section {
+  padding: 30px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+
+  gap: 10px;
+
+  margin-bottom: 25px;
+}
+
+/* Botones tabs */
+.tabs button {
+  flex: 1;
+
+  padding: 12px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  font-size: 15px;
+}
+
+/* Tab activa */
+.tabs .active {
+  background-color: #A7201F;
+
+  color: white;
+}
+
+/* Labels */
+label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  margin-top: 18px;
+
+  font-weight: bold;
+
+  color: #333;
+}
+
+/* Inputs */
+input {
+  width: 100%;
+
+  padding: 14px;
+
+  border-radius: 10px;
+
+  border: 1px solid #ccc;
+
+  font-size: 15px;
+}
+
+/* Opciones */
+.options {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-top: 18px;
+
+  gap: 10px;
+
+  font-size: 14px;
+}
+
+/* Link */
+.options a {
+  text-decoration: none;
+
+  color: #A7201F;
+}
+
+/* Botón login */
+.login-btn {
+  width: 100%;
+
+  margin-top: 25px;
+
+  padding: 14px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background-color: #A7201F;
+
+  color: white;
+
+  font-size: 17px;
+
+  cursor: pointer;
+}
+
+/* Footer */
+footer {
+  color: white;
+
+  margin-top: 20px;
+
+  text-align: center;
+
+  font-size: 14px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 500px) {
+
+  .form-section {
+    padding: 20px;
+  }
+
+  .top-section h1 {
+    font-size: 22px;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
+  .options {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+}
+/* Contenedor contraseña */
+.password-container {
+  position: relative;
+}
+
+/* Botón mostrar contraseña */
+.show-btn {
+  position: absolute;
+
+  right: 10px;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  border: none;
+
+  background: none;
+
+  cursor: pointer;
+
+  font-size: 18px;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.input-error {
+  border: 2px solid red;
+}
+.login-box {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.15);
+}
