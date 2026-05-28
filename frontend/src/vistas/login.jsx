@@ -2,7 +2,7 @@
 import "../App.css";
 
 // Importamos logo
-import logo from "../assets/logo.jpeg";
+import logo from "../assets/iconoCetis.png";
 
 // Imagen fondo
 import fondo from "../assets/fondoo.png";
