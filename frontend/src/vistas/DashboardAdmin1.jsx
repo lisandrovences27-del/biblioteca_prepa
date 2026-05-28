@@ -10,6 +10,7 @@ function DashboardAdmin1() {
       <aside className="sidebar">
 
         {/* Logo */}
+
         <div>
 
           <h2 className="logo-dashboard">
@@ -28,27 +29,27 @@ function DashboardAdmin1() {
         <ul className="menu">
 
           <li className="active-menu">
-            🏠 Dashboard
+            Dashboard
           </li>
 
           <li>
-            📚 Libros
+             Libros
           </li>
 
           <li>
-            📦 Préstamos
+             Préstamos
           </li>
 
           <li>
-            👨‍🎓 Alumnos
+             Alumnos
           </li>
 
           <li>
-            📊 Reportes
+             Reportes
           </li>
 
           <li>
-            ⚙️ Configuración
+             Configuración
           </li>
 
         </ul>
@@ -82,6 +83,9 @@ function DashboardAdmin1() {
 
      {/* ===== CONTENIDO ===== */}
 <main className="main-content">
+  <div style={{ color: "white" }}>
+  HOLA DASHBOARD
+</div>
 
   {/* ===== TOPBAR ===== */}
   <div className="topbar">

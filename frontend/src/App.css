@@ -169,6 +169,10 @@ input {
   border: 1px solid #ccc;
 
   font-size: 15px;
+
+  background-color: #e7dfd6;
+
+  color:black;
 }
 
 /* Opciones */
@@ -669,4 +673,44 @@ footer {
 
     width: 100%;
   }
+}
+.fila {
+  display: flex;
+  gap: 10px;
+}
+
+.campo {
+  flex: 1;
+}
+select {
+  width: 100%;
+
+  padding: 14px;
+
+  border-radius: 10px;
+
+  border: 1px solid #ccc;
+
+  font-size: 15px;
+
+  background-color: #f3f3f3;
+
+  color: black;
+}
+.register-link {
+  color: #333;
+}
+
+.register-link a {
+  color: #A7201F;
+
+  font-weight: bold;
+
+  text-decoration: none;
+
+  margin-left: 5px;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
 }
