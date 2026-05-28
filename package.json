@@ -2,10 +2,11 @@
   "name": "biblioteca_prepa",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "dev": "node --watch index.js",
-    "start": "node index.js",
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "init-db": "node init-db.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
