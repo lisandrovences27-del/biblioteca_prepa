@@ -29,8 +29,9 @@ function Login() {
 
   // Estado número de control
   const [numeroControl, setNumeroControl] = useState("");
- // Estado para guardar campos con error
+  // Estado para guardar campos con error
   const [camposError, setCamposError] = useState({});
+  const [errorBackend, setErrorBackend] = useState("");
 
 
   // Función para validar login
@@ -62,7 +63,34 @@ function Login() {
     return;
   }
 
-  alert("Login válido");
+  setErrorBackend("");
+
+  // Llamada al backend
+  fetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      correo_electronico: correo,
+      contrasena: password,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.token) {
+        // Guardar token y datos del usuario
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        alert("Login exitoso. Bienvenido " + data.user.nombre);
+        // Aquí podrías redirigir al dashboard
+        // window.location.href = "/dashboard";
+      } else {
+        setErrorBackend(data.error || "Error al iniciar sesión");
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      setErrorBackend("Error de conexión con el servidor");
+    });
 };
   return (
 
@@ -258,9 +286,11 @@ function Login() {
 
 
           {/* Mostrar errores */}
-         
-
-
+          {errorBackend && (
+            <p className="error-message" style={{ color: "red", textAlign: "center", marginBottom: "10px" }}>
+              {errorBackend}
+            </p>
+          )}
           {/* Botón login */}
           <button
             className="login-btn"
