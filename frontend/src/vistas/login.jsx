@@ -81,8 +81,8 @@ function Login() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         alert("Login exitoso. Bienvenido " + data.user.nombre);
-        // Aquí podrías redirigir al dashboard
-        // window.location.href = "/dashboard";
+        // Redirigimos al dashboard de admin ya que es el que está listo por ahora
+        window.location.href = "/dashboard-admin";
       } else {
         setErrorBackend(data.error || "Error al iniciar sesión");
       }
