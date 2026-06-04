@@ -64,6 +64,15 @@ CREATE TABLE IF NOT EXISTS materiales (
     stock_disponible INT NOT NULL DEFAULT 0,
     imagen VARCHAR(255),
     codigo_interno VARCHAR(50) UNIQUE, -- Ej. número de serie o código de barras
+    -- Campos extendidos para libros (basados en inventario Excel)
+    autor VARCHAR(150),
+    editorial VARCHAR(100),
+    edicion VARCHAR(50),
+    paginas INT,
+    anio_publicacion VARCHAR(10),
+    lugar_impresion VARCHAR(100),
+    isbn VARCHAR(50),
+    subcategoria VARCHAR(100),
     FOREIGN KEY (id_categoria) REFERENCES categorias_material(id_categoria) ON DELETE CASCADE
 );
 

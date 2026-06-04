@@ -5,7 +5,8 @@ exports.getLibros = async (req, res) => {
     try {
         const [libros] = await pool.query(
             `SELECT id_material, nombre, especificaciones, stock_total, stock_disponible,
-                    (stock_total - stock_disponible) AS prestados, imagen, codigo_interno
+                    (stock_total - stock_disponible) AS prestados, imagen, codigo_interno,
+                    autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria
              FROM materiales WHERE id_categoria = 1
              ORDER BY nombre ASC`
         );
@@ -20,7 +21,8 @@ exports.getLibros = async (req, res) => {
 exports.getLibrosDisponibles = async (req, res) => {
     try {
         const [libros] = await pool.query(
-            `SELECT id_material, nombre, especificaciones, stock_disponible, imagen
+            `SELECT id_material, nombre, especificaciones, stock_disponible, imagen,
+                    autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria
              FROM materiales
              WHERE id_categoria = 1 AND stock_disponible > 0
              ORDER BY nombre ASC`
@@ -48,7 +50,10 @@ exports.getLibroById = async (req, res) => {
 // Crear libro (Solo Bibliotecaria)
 exports.createLibro = async (req, res) => {
     try {
-        const { nombre, especificaciones, stock_total, codigo_interno, imagen } = req.body;
+        const { 
+            nombre, especificaciones, stock_total, codigo_interno, imagen,
+            autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria
+        } = req.body;
 
         if (!nombre || stock_total === undefined) {
             return res.status(400).json({ error: 'Nombre y stock total son obligatorios' });
@@ -56,8 +61,13 @@ exports.createLibro = async (req, res) => {
 
         // id_categoria = 1 (Libros)
         const [result] = await pool.query(
-            'INSERT INTO materiales (nombre, especificaciones, id_categoria, stock_total, stock_disponible, imagen, codigo_interno) VALUES (?, ?, 1, ?, ?, ?, ?)',
-            [nombre, especificaciones || null, stock_total, stock_total, imagen || null, codigo_interno || null]
+            `INSERT INTO materiales 
+            (nombre, especificaciones, id_categoria, stock_total, stock_disponible, imagen, codigo_interno, autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria) 
+            VALUES (?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                nombre, especificaciones || null, stock_total, stock_total, imagen || null, codigo_interno || null,
+                autor || null, editorial || null, edicion || null, paginas || null, anio_publicacion || null, lugar_impresion || null, isbn || null, subcategoria || null
+            ]
         );
         res.status(201).json({ message: 'Libro creado', id_material: result.insertId });
     } catch (error) {
@@ -70,11 +80,21 @@ exports.createLibro = async (req, res) => {
 exports.updateLibro = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, especificaciones, stock_total, stock_disponible, codigo_interno, imagen } = req.body;
+        const { 
+            nombre, especificaciones, stock_total, stock_disponible, codigo_interno, imagen,
+            autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria
+        } = req.body;
         
         const [result] = await pool.query(
-            'UPDATE materiales SET nombre=?, especificaciones=?, stock_total=?, stock_disponible=?, codigo_interno=?, imagen=? WHERE id_material=? AND id_categoria=1',
-            [nombre, especificaciones, stock_total, stock_disponible, codigo_interno, imagen, id]
+            `UPDATE materiales SET 
+                nombre=?, especificaciones=?, stock_total=?, stock_disponible=?, codigo_interno=?, imagen=?,
+                autor=?, editorial=?, edicion=?, paginas=?, anio_publicacion=?, lugar_impresion=?, isbn=?, subcategoria=?
+             WHERE id_material=? AND id_categoria=1`,
+            [
+                nombre, especificaciones, stock_total, stock_disponible, codigo_interno, imagen,
+                autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria,
+                id
+            ]
         );
         if (result.affectedRows === 0) return res.status(404).json({ error: 'Libro no encontrado o no modificado' });
         res.json({ message: 'Libro actualizado' });
