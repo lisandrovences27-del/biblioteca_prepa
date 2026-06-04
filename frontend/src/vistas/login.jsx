@@ -299,6 +299,12 @@ function Login() {
           >
             Iniciar Sesión
           </button>
+          <p className="register-link">
+            ¿No tienes cuenta?
+            <a href="/registro">
+              Crear cuenta
+            </a>
+         </p>
 
         </div>
       </div>

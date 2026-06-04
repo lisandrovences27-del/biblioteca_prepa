@@ -408,6 +408,31 @@ else {
   <option value="hospedaje">
     Servicios de Hospedaje
   </option>
+  <option value="administracionRH">
+    Administración de recursos humanos
+  </option>
+  <option value="ciberseguridad">
+    Ciberseguridad
+  </option>
+  <option value="contabilidad">
+    Contabilidad
+  </option>
+  <option value="electronica">
+    Electronica
+  </option>
+  <option value="secretariadoEB">
+    Secretariado Ejecutivo Bilingüe
+  </option>
+  <option value="soporteTegnologias">
+    Soporte y gestión de tegnologias informáticas 
+  </option>
+  <option value="soporteComputo">
+    soporte y mantenimiento de equipo de computo
+  </option>
+<option value="ventas">
+    Ventas 
+  </option>
+
 
 </select>
 {/* Numero de telefono */}

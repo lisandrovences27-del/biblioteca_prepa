@@ -1,11 +1,9 @@
 import { Routes, Route } from "react-router-dom";
-
 import Login from "./vistas/Login";
-
 import DashboardAdmin1 from "./vistas/DashboardAdmin1";
-
 import Registro from "./vistas/Registro";
-
+import Libros from "./vistas/Libros";
+import Prestamos from "./vistas/Prestamos";
 function App() {
 
   return (
@@ -29,6 +27,17 @@ function App() {
         path="/registro"
         element={<Registro />}
       />
+      {/* Ruta libros */}
+      <Route
+        path="/libros"
+        element={<Libros />}
+      />
+      {/* Ruta prestamos */}
+      <Route
+        path="/prestamos"
+        element={<Prestamos />}
+      />
+
 
     </Routes>
   );
