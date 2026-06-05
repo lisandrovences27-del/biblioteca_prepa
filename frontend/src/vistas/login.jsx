@@ -37,73 +37,73 @@ function Login() {
   // Función para validar login
   const validarLogin = () => {
 
-  let errores = {};
+    let errores = {};
 
-  // Validar número de control
-  if (
-    tipoUsuario === "alumno" &&
-    numeroControl === ""
-  ) {
-    errores.numeroControl = true;
-  }
+    // Validar número de control
+    if (
+      tipoUsuario === "alumno" &&
+      numeroControl === ""
+    ) {
+      errores.numeroControl = true;
+    }
 
-  // Validar correo
-  if (correo === "") {
-    errores.correo = true;
-  }
+    // Validar correo
+    if (correo === "") {
+      errores.correo = true;
+    }
 
-  // Validar contraseña
-  if (password === "") {
-    errores.password = true;
-  }
+    // Validar contraseña
+    if (password === "") {
+      errores.password = true;
+    }
 
-  setCamposError(errores);
+    setCamposError(errores);
 
-  if (Object.keys(errores).length > 0) {
-    return;
-  }
+    if (Object.keys(errores).length > 0) {
+      return;
+    }
 
-  setErrorBackend("");
+    setErrorBackend("");
 
-  // Llamada al backend
-  fetch("/api/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      correo_electronico: correo,
-      contrasena: password,
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.token) {
-        // Guardar token y datos del usuario
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        alert("Login exitoso. Bienvenido " + data.user.nombre);
-        // Redirigimos al dashboard de admin ya que es el que está listo por ahora
-        window.location.href = "/dashboard-admin";
-      } else {
-        setErrorBackend(data.error || "Error al iniciar sesión");
-      }
+    // Llamada al backend
+    fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        correo_electronico: correo,
+        contrasena: password,
+      }),
     })
-    .catch((err) => {
-      console.error(err);
-      setErrorBackend("Error de conexión con el servidor");
-    });
-};
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.token) {
+          // Guardar token y datos del usuario
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
+          alert("Login exitoso. Bienvenido " + data.user.nombre);
+          // Redirigimos al dashboard de admin ya que es el que está listo por ahora
+          window.location.href = "/dashboard-admin";
+        } else {
+          setErrorBackend(data.error || "Error al iniciar sesión");
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setErrorBackend("Error de conexión con el servidor");
+      });
+  };
   return (
 
     // Contenedor principal
     <div
-  className="container"
-  style={{
-    backgroundImage: `url(${fondo})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-  }}
->
+      className="container"
+      style={{
+        backgroundImage: `url(${fondo})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
 
       {/* Caja login */}
       <div className="login-box">
@@ -160,111 +160,111 @@ function Login() {
 
           {/* Mostrar número de control si es alumno */}
           {
-  tipoUsuario === "alumno" && (
-    <>
+            tipoUsuario === "alumno" && (
+              <>
 
-      <label>Número de Control</label>
+                <label>Número de Control</label>
 
-      {
-        camposError.numeroControl && (
-          <p className="error-message">
-            Ingresa tu número de control
-          </p>
-        )
-      }
+                {
+                  camposError.numeroControl && (
+                    <p className="error-message">
+                      Ingresa tu número de control
+                    </p>
+                  )
+                }
 
-      <input
-        type="text"
-        className={
-          camposError.numeroControl
-            ? "input-error"
-            : ""
-        }
+                <input
+                  type="text"
+                  className={
+                    camposError.numeroControl
+                      ? "input-error"
+                      : ""
+                  }
 
-        placeholder=""
+                  placeholder=""
 
-        value={numeroControl}
+                  value={numeroControl}
 
-        onChange={(e) =>
-          setNumeroControl(e.target.value)
-        }
-      />
+                  onChange={(e) =>
+                    setNumeroControl(e.target.value)
+                  }
+                />
 
-    </>
-  )
-}
+              </>
+            )
+          }
           {/* Campo correo */}
           <label>Correo </label>
 
-         {
-           camposError.correo && (
-             <p className="error-message">
-               Ingresa tu correo
-             </p>
-           )
-         }
+          {
+            camposError.correo && (
+              <p className="error-message">
+                Ingresa tu correo
+              </p>
+            )
+          }
 
-    <input
-      type="email"
-      className={camposError.correo ? "input-error" : ""}
-      placeholder=""
+          <input
+            type="email"
+            className={camposError.correo ? "input-error" : ""}
+            placeholder=""
 
-      value={correo}
+            value={correo}
 
-  onChange={(e) =>
-    setCorreo(e.target.value)
-  }
-/>
+            onChange={(e) =>
+              setCorreo(e.target.value)
+            }
+          />
 
 
 
           {/* Campo contraseña */}
           <label>Contraseña</label>
 
-{
-  camposError.password && (
-    <p className="error-message">
-      Ingresa tu contraseña
-    </p>
-  )
-}
+          {
+            camposError.password && (
+              <p className="error-message">
+                Ingresa tu contraseña
+              </p>
+            )
+          }
 
-<div className="password-container">
+          <div className="password-container">
 
-  <input
-    type={mostrarPassword ? "text" : "password"}
+            <input
+              type={mostrarPassword ? "text" : "password"}
 
-    className={camposError.password ? "input-error" : ""}
+              className={camposError.password ? "input-error" : ""}
 
-    placeholder=""
+              placeholder=""
 
-    value={password}
+              value={password}
 
-    onChange={(e) =>
-      setPassword(e.target.value)
-    }
-  />
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
+            />
 
-  <button
-    type="button"
-    className="show-btn"
+            <button
+              type="button"
+              className="show-btn"
 
-    onClick={() =>
-      setMostrarPassword(!mostrarPassword)
-    }
-  >
+              onClick={() =>
+                setMostrarPassword(!mostrarPassword)
+              }
+            >
 
-    {
-      mostrarPassword
-        ? <FaEyeSlash />
-        : <FaEye />
-    }
+              {
+                mostrarPassword
+                  ? <FaEyeSlash />
+                  : <FaEye />
+              }
 
-  </button>
+            </button>
 
-</div>
+          </div>
 
-          
+
 
           {/* Opciones inferiores */}
           <div className="options">
@@ -304,7 +304,7 @@ function Login() {
             <a href="/registro">
               Crear cuenta
             </a>
-         </p>
+          </p>
 
         </div>
       </div>

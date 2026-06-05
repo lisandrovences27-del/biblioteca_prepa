@@ -21,9 +21,14 @@ app.use('/api/materiales', materialesRoutes);
 app.use('/api/prestamos', prestamosRoutes);
 app.use('/api/sanciones', sancionesRoutes);
 
-// Basic Route
-app.get('/', (req, res) => {
-    res.json({ message: 'Bienvenido a la API del Sistema de Biblioteca de la Preparatoria' });
+const path = require('path');
+
+// Servir la aplicación de React estáticamente
+app.use(express.static(path.join(__dirname, 'frontend/dist')));
+
+// Cualquier ruta que no sea de la API, servirá el index.html de React
+app.use((req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend/dist/index.html'));
 });
 
 module.exports = app;
