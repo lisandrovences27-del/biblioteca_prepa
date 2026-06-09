@@ -241,7 +241,7 @@ function Libros() {
         {/* ===== TOPBAR ===== */}
         <div className="topbar">
           <div>
-            <h1>📚 Inventario de Libros</h1>
+            <h1> <FaBook /> Inventario de Libros</h1>
             <p>Gestiona el catálogo y stock de libros de la biblioteca.</p>
           </div>
           <div className="topbar-right">

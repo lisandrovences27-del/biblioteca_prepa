@@ -4,6 +4,7 @@ import DashboardAdmin1 from "./vistas/DashboardAdmin1";
 import Registro from "./vistas/Registro";
 import Libros from "./vistas/Libros";
 import Prestamos from "./vistas/Prestamos";
+
 function App() {
 
   return (
@@ -37,7 +38,8 @@ function App() {
         path="/prestamos"
         element={<Prestamos />}
       />
-
+      
+      
 
     </Routes>
   );

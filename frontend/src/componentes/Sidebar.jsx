@@ -89,6 +89,7 @@ function Sidebar() {
           className={({ isActive }) =>
       isActive ? "active-menu" : ""
     }
+    
     >
             <FaCog /> Configuración
           </NavLink>
