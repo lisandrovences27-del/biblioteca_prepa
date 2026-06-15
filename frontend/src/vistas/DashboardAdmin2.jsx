@@ -9,9 +9,10 @@ import {
   FaCog,
   FaChartBar,
   FaClipboardList,
+  FaBox,
 } from "react-icons/fa";
 import icono120 from "../assets/icono120.png";
-function DashboardAdmin1() {
+function DashboardAdmin2() {
 
   return (
 
@@ -32,7 +33,7 @@ function DashboardAdmin1() {
     </h1>
 
     <p>
-      Gestiona préstamos, libros y alumnos.
+      Gestiona préstamos, materiales disponibles y alumnos.
     </p>
 
   </div>
@@ -80,13 +81,13 @@ function DashboardAdmin1() {
     <div className="card-left">
 
       <div className="card-icon-circle">
-        <FaBook />
+        <FaBox />
       </div>
 
       <div>
 
         <p className="card-title">
-          Libros registrados
+          Materiales registrados
         </p>
 
         <h2>
@@ -107,22 +108,31 @@ function DashboardAdmin1() {
 
   {/* ===== CARD 2 ===== */}
   <div className="dashboard-card wine-card">
+
     <div className="card-left">
+
       <div className="card-icon-circle">
         <FaBoxOpen />
       </div>
+
       <div>
+
         <p className="card-title">
           Préstamos activos
         </p>
+
         <h2>
           35
         </h2>
+
         <span className="card-info">
           +5 este mes ↑
         </span>
+
       </div>
+
     </div>
+
   </div>
 
 
@@ -218,7 +228,7 @@ function DashboardAdmin1() {
 
           <th>Alumno</th>
 
-          <th>Libro</th>
+          <th>Material</th>
 
           <th>Fecha préstamo</th>
 
@@ -238,7 +248,7 @@ function DashboardAdmin1() {
 
           <td>Juan Pérez</td>
 
-          <td>Matemáticas</td>
+          <td>Calculadora Cientifica</td>
 
           <td>12/05/2025</td>
 
@@ -258,7 +268,7 @@ function DashboardAdmin1() {
 
           <td>María López</td>
 
-          <td>Química General</td>
+          <td>Cable HDMI</td>
 
           <td>10/05/2025</td>
 
@@ -278,7 +288,7 @@ function DashboardAdmin1() {
 
           <td>Carlos Ruiz</td>
 
-          <td>Historia</td>
+          <td>Laptop</td>
 
           <td>08/05/2025</td>
 
@@ -304,28 +314,6 @@ function DashboardAdmin1() {
 <div className="bottom-section">
 
   {/* ===== GRÁFICA ===== */}
-  <div className="chart-box">
-
-    <h2>
-      Estadísticas
-    </h2>
-
-    <div className="fake-chart">
-
-      <div className="bar bar1"></div>
-
-      <div className="bar bar2"></div>
-
-      <div className="bar bar3"></div>
-
-      <div className="bar bar4"></div>
-
-      <div className="bar bar5"></div>
-
-    </div>
-
-  </div>
-
 
 
   {/* ===== ACTIVIDAD ===== */}
@@ -338,19 +326,19 @@ function DashboardAdmin1() {
     <ul>
 
       <li>
-        📚 Nuevo libro agregado
+        <FaBook/> Nuevo libro agregado
       </li>
 
       <li>
-        👨‍🎓 Alumno registrado
+        <FaUserGraduate/> Alumno registrado
       </li>
 
       <li>
-        📦 Préstamo realizado
+        <FaBox/> Préstamo realizado
       </li>
 
       <li>
-        ✅ Libro devuelto
+        <FaCheckCircle/> Libro devuelto
       </li>
 
     </ul>
@@ -365,4 +353,4 @@ function DashboardAdmin1() {
 );
 }
 
-export default DashboardAdmin1;
+export default DashboardAdmin2;

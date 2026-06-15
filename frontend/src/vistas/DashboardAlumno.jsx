@@ -1,5 +1,5 @@
 import "../App.css";
-import Sidebar from "../componentes/Sidebar";
+import SidebarAlumno from "../componentes/SidebarAlumno";
 import {
   FaBook,
   FaBoxOpen,
@@ -9,14 +9,17 @@ import {
   FaCog,
   FaChartBar,
   FaClipboardList,
+  FaNotEqual,
+  FaHome,
+  FaBox,
 } from "react-icons/fa";
 import icono120 from "../assets/icono120.png";
-function DashboardAdmin1() {
+function DashboardAlumno() {
 
   return (
 
     <div className="dashboard">
-      <Sidebar></Sidebar>
+      <SidebarAlumno></SidebarAlumno>
      {/* ===== CONTENIDO ===== */}
 <main className="main-content">
   
@@ -28,11 +31,11 @@ function DashboardAdmin1() {
   <div>
 
     <h1>
-      Bienvenido, Administrador!!
+      Bienvenido, Alumn@!!
     </h1>
 
     <p>
-      Gestiona préstamos, libros y alumnos.
+      Consulta libros, materiales y el estado de tus préstamos.
     </p>
 
   </div>
@@ -49,14 +52,10 @@ function DashboardAdmin1() {
       className="search-input"
     />
 
-
-
     {/* Notificación */}
     <div className="icon-box">
       <FaBell />
     </div>
-
-
 
     {/* Usuario */}
     <div className="profile-box">
@@ -71,123 +70,58 @@ function DashboardAdmin1() {
 
 </div>
     {/* ===== CARDS ===== */}
-
 <div className="cards-container">
 
-  {/* ===== CARD 1 ===== */}
   <div className="dashboard-card red-card">
-
     <div className="card-left">
-
       <div className="card-icon-circle">
         <FaBook />
       </div>
-
       <div>
-
         <p className="card-title">
-          Libros registrados
+          Libros disponibles
         </p>
-
-        <h2>
-          120
-        </h2>
-
         <span className="card-info">
-          +8 este mes ↑
+          Consulta el catálogo de libros.
         </span>
-
       </div>
-
     </div>
-
   </div>
-
-
-
-  {/* ===== CARD 2 ===== */}
-  <div className="dashboard-card wine-card">
+  
+  <div className="dashboard-card blue-card">
     <div className="card-left">
       <div className="card-icon-circle">
         <FaBoxOpen />
       </div>
       <div>
         <p className="card-title">
-          Préstamos activos
+          Materiales Disponibles
         </p>
-        <h2>
-          35
-        </h2>
         <span className="card-info">
-          +5 este mes ↑
+          Revisa los materiales que puedes solicitar.
         </span>
       </div>
     </div>
   </div>
 
-
-
-  {/* ===== CARD 3 ===== */}
-  <div className="dashboard-card blue-card">
-
+<div className="dashboard-card beige-card">
     <div className="card-left">
-
       <div className="card-icon-circle">
-        <FaUserGraduate />
+        <FaBoxOpen />
       </div>
-
       <div>
-
         <p className="card-title">
-          Alumnos registrados
+          Mis Préstamos
         </p>
-
-        <h2>
-          80
-        </h2>
-
         <span className="card-info">
-          +12 este mes ↑
+          Consulta tus préstamos activos.
         </span>
-
       </div>
-
     </div>
-
-  </div>
-
-
-
-  {/* ===== CARD 4 ===== */}
-  <div className="dashboard-card beige-card">
-
-    <div className="card-left">
-
-      <div className="card-icon-circle">
-        <FaCheckCircle />
-      </div>
-
-      <div>
-
-        <p className="card-title">
-          Préstamos devueltos
-        </p>
-
-        <h2>
-          215
-        </h2>
-
-        <span className="card-info">
-          +20 este mes ↑
-        </span>
-
-      </div>
-
-    </div>
-
   </div>
 
 </div>
+
 {/* ===== TABLA ===== */}
 
 <div className="table-section">
@@ -196,7 +130,7 @@ function DashboardAdmin1() {
   <div className="table-header">
 
     <h2>
-      Últimos préstamos
+      Mis préstamos
     </h2>
 
     <button className="view-btn">
@@ -211,87 +145,37 @@ function DashboardAdmin1() {
   <div className="table-container">
 
     <table>
-
       <thead>
-
         <tr>
-
-          <th>Alumno</th>
-
-          <th>Libro</th>
-
+          <th>Recurso</th>
           <th>Fecha préstamo</th>
-
           <th>Fecha devolución</th>
-
           <th>Estado</th>
-
         </tr>
-
       </thead>
 
-
-
       <tbody>
-
         <tr>
-
-          <td>Juan Pérez</td>
-
-          <td>Matemáticas</td>
-
+          <td>Fisica I</td>
           <td>12/05/2025</td>
-
           <td>19/05/2025</td>
-
           <td>
             <span className="status active-status">
               Activo
             </span>
           </td>
-
         </tr>
 
-
-
         <tr>
-
-          <td>María López</td>
-
-          <td>Química General</td>
-
+          <td>Calculadora Científica</td>
           <td>10/05/2025</td>
-
           <td>17/05/2025</td>
-
           <td>
             <span className="status returned-status">
               Devuelto
             </span>
           </td>
-
         </tr>
-
-
-
-        <tr>
-
-          <td>Carlos Ruiz</td>
-
-          <td>Historia</td>
-
-          <td>08/05/2025</td>
-
-          <td>15/05/2025</td>
-
-          <td>
-            <span className="status active-status">
-              Activo
-            </span>
-          </td>
-
-        </tr>
-
       </tbody>
 
     </table>
@@ -303,54 +187,27 @@ function DashboardAdmin1() {
 
 <div className="bottom-section">
 
-  {/* ===== GRÁFICA ===== */}
-  <div className="chart-box">
-
-    <h2>
-      Estadísticas
-    </h2>
-
-    <div className="fake-chart">
-
-      <div className="bar bar1"></div>
-
-      <div className="bar bar2"></div>
-
-      <div className="bar bar3"></div>
-
-      <div className="bar bar4"></div>
-
-      <div className="bar bar5"></div>
-
-    </div>
-
-  </div>
-
-
-
   {/* ===== ACTIVIDAD ===== */}
   <div className="activity-box">
 
-    <h2>
-      Actividad reciente
-    </h2>
+    <h2> Notificaciones </h2>
 
     <ul>
 
       <li>
-        📚 Nuevo libro agregado
+        <FaBook></FaBook> Tu solicitud de Física I fue aprobada
       </li>
 
       <li>
-        👨‍🎓 Alumno registrado
+        📦 Solicitaste una Calculadora Científica
       </li>
 
       <li>
-        📦 Préstamo realizado
+        ⏰ Tienes un préstamo próximo a vencer
       </li>
 
       <li>
-        ✅ Libro devuelto
+         ✅ Devolución registrada correctamente
       </li>
 
     </ul>
@@ -365,4 +222,4 @@ function DashboardAdmin1() {
 );
 }
 
-export default DashboardAdmin1;
+export default DashboardAlumno;

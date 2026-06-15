@@ -1,9 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 import Login from "./vistas/Login";
 import DashboardAdmin1 from "./vistas/DashboardAdmin1";
+import DashboardAlumno from "./vistas/DashboardAlumno";
+import DashboardAdmin2 from "./vistas/DashboardAdmin2";
 import Registro from "./vistas/Registro";
 import Libros from "./vistas/Libros";
 import Prestamos from "./vistas/Prestamos";
+import PrestamosAlumno from "./vistas/prestamosAlumno";
 
 function App() {
 
@@ -22,6 +25,11 @@ function App() {
         path="/dashboard-admin"
         element={<DashboardAdmin1 />}
       />
+      <Route
+        path="/dashboard-admin2"
+        element={<DashboardAdmin2 />}
+      />
+
 
       {/* Ruta registro */}
       <Route
@@ -38,8 +46,14 @@ function App() {
         path="/prestamos"
         element={<Prestamos />}
       />
-      
-      
+      <Route
+        path="/dashboard-alumno"
+        element={<DashboardAlumno />}
+      />
+      <Route
+        path="/mis-prestamos"
+        element={<PrestamosAlumno />}
+      />
 
     </Routes>
   );
