@@ -19,18 +19,18 @@ exports.registerAlumno = async (req, res) => {
         } = req.body;
 
         // Validar campos obligatorios
-        if (!nombre_completo || !numero_control || !curp || !correo_electronico || !contrasena) {
-            return res.status(400).json({ error: 'Faltan campos obligatorios: nombre, número de control, CURP, correo y contraseña.' });
+        if (!nombre_completo || !numero_control || !correo_electronico || !contrasena) {
+            return res.status(400).json({ error: 'Faltan campos obligatorios: nombre, número de control, correo y contraseña.' });
         }
 
         // Validar si el correo, número de control o CURP ya existen
         const [existingUser] = await pool.query(
-            'SELECT * FROM usuarios WHERE correo_electronico = ? OR numero_control = ? OR curp = ?',
-            [correo_electronico, numero_control, curp]
+            'SELECT * FROM usuarios WHERE correo_electronico = ? OR numero_control = ?' + (curp ? ' OR curp = ?' : ''),
+            curp ? [correo_electronico, numero_control, curp] : [correo_electronico, numero_control]
         );
 
         if (existingUser.length > 0) {
-            return res.status(400).json({ error: 'El correo, número de control o CURP ya están registrados.' });
+            return res.status(400).json({ error: 'El correo, número de control' + (curp ? ' o CURP' : '') + ' ya están registrados.' });
         }
 
         // Hashear contraseña
@@ -41,7 +41,7 @@ exports.registerAlumno = async (req, res) => {
         const [result] = await pool.query(
             `INSERT INTO usuarios (nombre_completo, numero_control, curp, correo_electronico, contrasena, id_rol, grado, grupo, turno, especialidad, telefono)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [nombre_completo, numero_control, curp, correo_electronico, hashedPassword, 3, grado || null, grupo || null, turno || null, especialidad || null, telefono || null]
+            [nombre_completo, numero_control, curp || null, correo_electronico, hashedPassword, 3, grado || null, grupo || null, turno || null, especialidad || null, telefono || null]
         );
 
         res.status(201).json({ message: 'Alumno registrado exitosamente', id_usuario: result.insertId });

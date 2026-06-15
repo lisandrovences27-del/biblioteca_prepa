@@ -1,4 +1,5 @@
 -- Base de datos para el Sistema de Préstamos de Biblioteca Preparatoria
+DROP DATABASE IF EXISTS biblioteca_prepa;
 CREATE DATABASE IF NOT EXISTS biblioteca_prepa;
 USE biblioteca_prepa;
 
@@ -54,7 +55,25 @@ INSERT IGNORE INTO categorias_material (nombre, id_rol_encargado) VALUES
 ('Cables y Adaptadores', 2),
 ('Otro', 2);               -- Categoría genérica para la Encargada
 
--- 4. Tabla de Materiales
+-- 4. Tabla de Libros
+CREATE TABLE IF NOT EXISTS libros (
+    id_libro INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    autor VARCHAR(150),
+    editorial VARCHAR(100),
+    edicion VARCHAR(50),
+    paginas INT,
+    anio_publicacion VARCHAR(10),
+    lugar_impresion VARCHAR(100),
+    isbn VARCHAR(50),
+    subcategoria VARCHAR(100),
+    stock_total INT NOT NULL DEFAULT 0,
+    stock_disponible INT NOT NULL DEFAULT 0,
+    imagen VARCHAR(255),
+    codigo_interno VARCHAR(50) UNIQUE
+);
+
+-- 4.5. Tabla de Materiales (Equipo)
 CREATE TABLE IF NOT EXISTS materiales (
     id_material INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -64,15 +83,6 @@ CREATE TABLE IF NOT EXISTS materiales (
     stock_disponible INT NOT NULL DEFAULT 0,
     imagen VARCHAR(255),
     codigo_interno VARCHAR(50) UNIQUE, -- Ej. número de serie o código de barras
-    -- Campos extendidos para libros (basados en inventario Excel)
-    autor VARCHAR(150),
-    editorial VARCHAR(100),
-    edicion VARCHAR(50),
-    paginas INT,
-    anio_publicacion VARCHAR(10),
-    lugar_impresion VARCHAR(100),
-    isbn VARCHAR(50),
-    subcategoria VARCHAR(100),
     FOREIGN KEY (id_categoria) REFERENCES categorias_material(id_categoria) ON DELETE CASCADE
 );
 
@@ -80,7 +90,8 @@ CREATE TABLE IF NOT EXISTS materiales (
 CREATE TABLE IF NOT EXISTS prestamos (
     id_prestamo INT AUTO_INCREMENT PRIMARY KEY,
     id_alumno INT NOT NULL,
-    id_material INT NOT NULL,
+    id_material INT NULL,
+    id_libro INT NULL,
     tipo_prestamo ENUM('Libro', 'Material') DEFAULT 'Material', -- Tipo para filtrar por perfil
     fecha_solicitud DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_entrega DATETIME NULL,
@@ -90,6 +101,7 @@ CREATE TABLE IF NOT EXISTS prestamos (
     id_encargado_aprobacion INT NULL, -- Quién aprobó el préstamo
     FOREIGN KEY (id_alumno) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
     FOREIGN KEY (id_material) REFERENCES materiales(id_material) ON DELETE CASCADE,
+    FOREIGN KEY (id_libro) REFERENCES libros(id_libro) ON DELETE CASCADE,
     FOREIGN KEY (id_encargado_aprobacion) REFERENCES usuarios(id_usuario) ON DELETE SET NULL
 );
 

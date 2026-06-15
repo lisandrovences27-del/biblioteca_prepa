@@ -1,10 +1,13 @@
 const pool = require('../../config/db');
 
-// Solicitar préstamo (Alumno)
 exports.solicitarPrestamo = async (req, res) => {
     try {
-        const { id_material } = req.body;
+        const { id_item, tipo_prestamo } = req.body; // Cambiado a id_item y tipo_prestamo
         const id_alumno = req.user.id_usuario;
+
+        if (!tipo_prestamo || !['Libro', 'Material'].includes(tipo_prestamo)) {
+            return res.status(400).json({ error: 'Debes especificar el tipo_prestamo ("Libro" o "Material")' });
+        }
 
         // Verificar si el alumno está bloqueado
         const [alumno] = await pool.query('SELECT bloqueado FROM usuarios WHERE id_usuario = ?', [id_alumno]);
@@ -13,31 +16,33 @@ exports.solicitarPrestamo = async (req, res) => {
         }
 
         // Verificar que el material exista y tenga stock
-        const [material] = await pool.query('SELECT * FROM materiales WHERE id_material = ?', [id_material]);
-        if (material.length === 0) {
-            return res.status(404).json({ error: 'Material no encontrado' });
-        }
-        if (material[0].stock_disponible <= 0) {
-            return res.status(400).json({ error: 'No hay stock disponible para este material' });
+        let item;
+        if (tipo_prestamo === 'Libro') {
+            const [libros] = await pool.query('SELECT * FROM libros WHERE id_libro = ?', [id_item]);
+            if (libros.length === 0) return res.status(404).json({ error: 'Libro no encontrado' });
+            item = libros[0];
+        } else {
+            const [materiales] = await pool.query('SELECT * FROM materiales WHERE id_material = ?', [id_item]);
+            if (materiales.length === 0) return res.status(404).json({ error: 'Material no encontrado' });
+            item = materiales[0];
         }
 
-        // Verificar si el alumno ya tiene un préstamo pendiente o activo del mismo material
-        const [existente] = await pool.query(
-            'SELECT * FROM prestamos WHERE id_alumno = ? AND id_material = ? AND estado IN ("Pendiente", "Activo")',
-            [id_alumno, id_material]
-        );
+        if (item.stock_disponible <= 0) {
+            return res.status(400).json({ error: 'No hay stock disponible para este item' });
+        }
+
+        // Verificar si el alumno ya tiene un préstamo pendiente o activo del mismo item
+        let existenteQuery = 'SELECT * FROM prestamos WHERE id_alumno = ? AND estado IN ("Pendiente", "Activo") AND ';
+        existenteQuery += tipo_prestamo === 'Libro' ? 'id_libro = ?' : 'id_material = ?';
+        
+        const [existente] = await pool.query(existenteQuery, [id_alumno, id_item]);
 
         if (existente.length > 0) {
-            return res.status(400).json({ error: 'Ya tienes una solicitud o préstamo activo para este material' });
+            return res.status(400).json({ error: 'Ya tienes una solicitud o préstamo activo para este item' });
         }
 
-        // Determinar tipo de préstamo según la categoría del material
-        const tipo_prestamo = material[0].id_categoria === 1 ? 'Libro' : 'Material';
-
-        const [result] = await pool.query(
-            'INSERT INTO prestamos (id_alumno, id_material, tipo_prestamo, estado) VALUES (?, ?, ?, ?)',
-            [id_alumno, id_material, tipo_prestamo, 'Pendiente']
-        );
+        const insertQuery = 'INSERT INTO prestamos (id_alumno, ' + (tipo_prestamo === 'Libro' ? 'id_libro' : 'id_material') + ', tipo_prestamo, estado) VALUES (?, ?, ?, ?)';
+        const [result] = await pool.query(insertQuery, [id_alumno, id_item, tipo_prestamo, 'Pendiente']);
 
         res.status(201).json({ message: 'Solicitud de préstamo enviada', id_prestamo: result.insertId });
     } catch (error) {
@@ -55,17 +60,17 @@ exports.procesarPrestamo = async (req, res) => {
         const id_rol = req.user.id_rol;
 
         const [prestamo] = await pool.query(
-            `SELECT p.*, m.id_categoria FROM prestamos p
-             JOIN materiales m ON p.id_material = m.id_material
-             WHERE p.id_prestamo = ? AND p.estado = 'Pendiente'`, [id]
+            `SELECT p.* FROM prestamos p WHERE p.id_prestamo = ? AND p.estado = 'Pendiente'`, [id]
         );
         if (prestamo.length === 0) return res.status(404).json({ error: 'Préstamo no encontrado o no está pendiente' });
 
-        // Verificar permisos: Bibliotecaria (1) solo libros (cat 1), Encargada (2) solo materiales (cat != 1)
-        if (id_rol === 1 && prestamo[0].id_categoria !== 1) {
+        const tipo_prestamo = prestamo[0].tipo_prestamo;
+
+        // Verificar permisos: Bibliotecaria (1) solo libros, Encargada (2) solo materiales
+        if (id_rol === 1 && tipo_prestamo !== 'Libro') {
             return res.status(403).json({ error: 'La Bibliotecaria solo puede gestionar préstamos de libros' });
         }
-        if (id_rol === 2 && prestamo[0].id_categoria === 1) {
+        if (id_rol === 2 && tipo_prestamo === 'Libro') {
             return res.status(403).json({ error: 'La Encargada de Equipo solo puede gestionar préstamos de materiales' });
         }
 
@@ -80,7 +85,11 @@ exports.procesarPrestamo = async (req, res) => {
             );
 
             // Reducir stock
-            await pool.query('UPDATE materiales SET stock_disponible = stock_disponible - 1 WHERE id_material = ?', [prestamo[0].id_material]);
+            if (tipo_prestamo === 'Libro') {
+                await pool.query('UPDATE libros SET stock_disponible = stock_disponible - 1 WHERE id_libro = ?', [prestamo[0].id_libro]);
+            } else {
+                await pool.query('UPDATE materiales SET stock_disponible = stock_disponible - 1 WHERE id_material = ?', [prestamo[0].id_material]);
+            }
 
             res.json({ message: 'Préstamo aprobado' });
         } else if (accion === 'Rechazar') {
@@ -105,17 +114,17 @@ exports.registrarDevolucion = async (req, res) => {
         const id_rol = req.user.id_rol;
 
         const [prestamo] = await pool.query(
-            `SELECT p.*, m.id_categoria FROM prestamos p
-             JOIN materiales m ON p.id_material = m.id_material
-             WHERE p.id_prestamo = ? AND p.estado = 'Activo'`, [id]
+            `SELECT p.* FROM prestamos p WHERE p.id_prestamo = ? AND p.estado = 'Activo'`, [id]
         );
         if (prestamo.length === 0) return res.status(404).json({ error: 'Préstamo no encontrado o no está activo' });
 
+        const tipo_prestamo = prestamo[0].tipo_prestamo;
+
         // Verificar permisos por tipo
-        if (id_rol === 1 && prestamo[0].id_categoria !== 1) {
+        if (id_rol === 1 && tipo_prestamo !== 'Libro') {
             return res.status(403).json({ error: 'La Bibliotecaria solo puede gestionar devoluciones de libros' });
         }
-        if (id_rol === 2 && prestamo[0].id_categoria === 1) {
+        if (id_rol === 2 && tipo_prestamo === 'Libro') {
             return res.status(403).json({ error: 'La Encargada solo puede gestionar devoluciones de materiales' });
         }
 
@@ -125,7 +134,11 @@ exports.registrarDevolucion = async (req, res) => {
         );
 
         // Aumentar stock
-        await pool.query('UPDATE materiales SET stock_disponible = stock_disponible + 1 WHERE id_material = ?', [prestamo[0].id_material]);
+        if (tipo_prestamo === 'Libro') {
+            await pool.query('UPDATE libros SET stock_disponible = stock_disponible + 1 WHERE id_libro = ?', [prestamo[0].id_libro]);
+        } else {
+            await pool.query('UPDATE materiales SET stock_disponible = stock_disponible + 1 WHERE id_material = ?', [prestamo[0].id_material]);
+        }
 
         res.json({ message: 'Devolución registrada exitosamente' });
     } catch (error) {
@@ -138,10 +151,14 @@ exports.registrarDevolucion = async (req, res) => {
 exports.misPrestamos = async (req, res) => {
     try {
         const [prestamos] = await pool.query(
-            `SELECT p.*, m.nombre AS material, m.imagen, c.nombre AS categoria
+            `SELECT p.*, 
+                    COALESCE(l.nombre, m.nombre) AS material, 
+                    COALESCE(l.imagen, m.imagen) AS imagen,
+                    CASE WHEN p.tipo_prestamo = 'Libro' THEN 'Libro' ELSE c.nombre END AS categoria
              FROM prestamos p
-             JOIN materiales m ON p.id_material = m.id_material
-             JOIN categorias_material c ON m.id_categoria = c.id_categoria
+             LEFT JOIN libros l ON p.id_libro = l.id_libro
+             LEFT JOIN materiales m ON p.id_material = m.id_material
+             LEFT JOIN categorias_material c ON m.id_categoria = c.id_categoria
              WHERE p.id_alumno = ?
              ORDER BY p.fecha_solicitud DESC`,
             [req.user.id_usuario]
@@ -159,11 +176,13 @@ exports.getTodosPrestamos = async (req, res) => {
         const id_rol = req.user.id_rol;
         let query = `
             SELECT p.*, u.nombre_completo AS alumno, u.numero_control,
-                   m.nombre AS material, c.nombre AS categoria
+                   COALESCE(l.nombre, m.nombre) AS material,
+                   CASE WHEN p.tipo_prestamo = 'Libro' THEN 'Libro' ELSE c.nombre END AS categoria
             FROM prestamos p 
             JOIN usuarios u ON p.id_alumno = u.id_usuario 
-            JOIN materiales m ON p.id_material = m.id_material
-            JOIN categorias_material c ON m.id_categoria = c.id_categoria
+            LEFT JOIN libros l ON p.id_libro = l.id_libro
+            LEFT JOIN materiales m ON p.id_material = m.id_material
+            LEFT JOIN categorias_material c ON m.id_categoria = c.id_categoria
         `;
 
         // Filtrar por tipo según el rol del admin
@@ -189,11 +208,13 @@ exports.getPrestamosPendientes = async (req, res) => {
         const id_rol = req.user.id_rol;
         let query = `
             SELECT p.*, u.nombre_completo AS alumno, u.numero_control,
-                   m.nombre AS material, c.nombre AS categoria
+                   COALESCE(l.nombre, m.nombre) AS material,
+                   CASE WHEN p.tipo_prestamo = 'Libro' THEN 'Libro' ELSE c.nombre END AS categoria
             FROM prestamos p
             JOIN usuarios u ON p.id_alumno = u.id_usuario
-            JOIN materiales m ON p.id_material = m.id_material
-            JOIN categorias_material c ON m.id_categoria = c.id_categoria
+            LEFT JOIN libros l ON p.id_libro = l.id_libro
+            LEFT JOIN materiales m ON p.id_material = m.id_material
+            LEFT JOIN categorias_material c ON m.id_categoria = c.id_categoria
             WHERE p.estado = 'Pendiente'
         `;
 
@@ -221,11 +242,13 @@ exports.getHistorialPrestamos = async (req, res) => {
 
         let query = `
             SELECT p.*, u.nombre_completo AS alumno, u.numero_control,
-                   m.nombre AS material, c.nombre AS categoria
+                   COALESCE(l.nombre, m.nombre) AS material,
+                   CASE WHEN p.tipo_prestamo = 'Libro' THEN 'Libro' ELSE c.nombre END AS categoria
             FROM prestamos p
             JOIN usuarios u ON p.id_alumno = u.id_usuario
-            JOIN materiales m ON p.id_material = m.id_material
-            JOIN categorias_material c ON m.id_categoria = c.id_categoria
+            LEFT JOIN libros l ON p.id_libro = l.id_libro
+            LEFT JOIN materiales m ON p.id_material = m.id_material
+            LEFT JOIN categorias_material c ON m.id_categoria = c.id_categoria
             WHERE 1=1
         `;
         const params = [];

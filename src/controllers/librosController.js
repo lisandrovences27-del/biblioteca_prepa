@@ -4,10 +4,11 @@ const pool = require('../../config/db');
 exports.getLibros = async (req, res) => {
     try {
         const [libros] = await pool.query(
-            `SELECT id_material, nombre, especificaciones, stock_total, stock_disponible,
+            `SELECT id_libro AS id_material, nombre,
+                    stock_total, stock_disponible,
                     (stock_total - stock_disponible) AS prestados, imagen, codigo_interno,
                     autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria
-             FROM materiales WHERE id_categoria = 1
+             FROM libros
              ORDER BY nombre ASC`
         );
         res.json(libros);
@@ -21,10 +22,10 @@ exports.getLibros = async (req, res) => {
 exports.getLibrosDisponibles = async (req, res) => {
     try {
         const [libros] = await pool.query(
-            `SELECT id_material, nombre, especificaciones, stock_disponible, imagen,
+            `SELECT id_libro AS id_material, nombre, stock_disponible, imagen,
                     autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria
-             FROM materiales
-             WHERE id_categoria = 1 AND stock_disponible > 0
+             FROM libros
+             WHERE stock_disponible > 0
              ORDER BY nombre ASC`
         );
         res.json(libros);
@@ -38,7 +39,7 @@ exports.getLibrosDisponibles = async (req, res) => {
 exports.getLibroById = async (req, res) => {
     try {
         const { id } = req.params;
-        const [libros] = await pool.query('SELECT * FROM materiales WHERE id_material = ? AND id_categoria = 1', [id]);
+        const [libros] = await pool.query('SELECT *, id_libro AS id_material FROM libros WHERE id_libro = ?', [id]);
         if (libros.length === 0) return res.status(404).json({ error: 'Libro no encontrado' });
         res.json(libros[0]);
     } catch (error) {
@@ -51,7 +52,7 @@ exports.getLibroById = async (req, res) => {
 exports.createLibro = async (req, res) => {
     try {
         const { 
-            nombre, especificaciones, stock_total, codigo_interno, imagen,
+            nombre, stock_total, codigo_interno, imagen,
             autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria
         } = req.body;
 
@@ -59,13 +60,12 @@ exports.createLibro = async (req, res) => {
             return res.status(400).json({ error: 'Nombre y stock total son obligatorios' });
         }
 
-        // id_categoria = 1 (Libros)
         const [result] = await pool.query(
-            `INSERT INTO materiales 
-            (nombre, especificaciones, id_categoria, stock_total, stock_disponible, imagen, codigo_interno, autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria) 
-            VALUES (?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO libros 
+            (nombre, stock_total, stock_disponible, imagen, codigo_interno, autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-                nombre, especificaciones || null, stock_total, stock_total, imagen || null, codigo_interno || null,
+                nombre, stock_total, stock_total, imagen || null, codigo_interno || null,
                 autor || null, editorial || null, edicion || null, paginas || null, anio_publicacion || null, lugar_impresion || null, isbn || null, subcategoria || null
             ]
         );
@@ -81,17 +81,17 @@ exports.updateLibro = async (req, res) => {
     try {
         const { id } = req.params;
         const { 
-            nombre, especificaciones, stock_total, stock_disponible, codigo_interno, imagen,
+            nombre, stock_total, stock_disponible, codigo_interno, imagen,
             autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria
         } = req.body;
         
         const [result] = await pool.query(
-            `UPDATE materiales SET 
-                nombre=?, especificaciones=?, stock_total=?, stock_disponible=?, codigo_interno=?, imagen=?,
+            `UPDATE libros SET 
+                nombre=?, stock_total=?, stock_disponible=?, codigo_interno=?, imagen=?,
                 autor=?, editorial=?, edicion=?, paginas=?, anio_publicacion=?, lugar_impresion=?, isbn=?, subcategoria=?
-             WHERE id_material=? AND id_categoria=1`,
+             WHERE id_libro=?`,
             [
-                nombre, especificaciones, stock_total, stock_disponible, codigo_interno, imagen,
+                nombre, stock_total, stock_disponible, codigo_interno, imagen,
                 autor, editorial, edicion, paginas, anio_publicacion, lugar_impresion, isbn, subcategoria,
                 id
             ]
@@ -108,7 +108,7 @@ exports.updateLibro = async (req, res) => {
 exports.deleteLibro = async (req, res) => {
     try {
         const { id } = req.params;
-        const [result] = await pool.query('DELETE FROM materiales WHERE id_material=? AND id_categoria=1', [id]);
+        const [result] = await pool.query('DELETE FROM libros WHERE id_libro=?', [id]);
         if (result.affectedRows === 0) return res.status(404).json({ error: 'Libro no encontrado' });
         res.json({ message: 'Libro eliminado exitosamente' });
     } catch (error) {
@@ -124,17 +124,17 @@ exports.reporteInventario = async (req, res) => {
         const [inventario] = await pool.query(
             `SELECT nombre, stock_total, stock_disponible,
                     (stock_total - stock_disponible) AS prestados, codigo_interno
-             FROM materiales WHERE id_categoria = 1
+             FROM libros
              ORDER BY nombre ASC`
         );
 
         // Préstamos activos de libros
         const [prestamosActivos] = await pool.query(
             `SELECT p.id_prestamo, u.nombre_completo AS alumno, u.numero_control,
-                    m.nombre AS libro, p.fecha_entrega, p.fecha_devolucion_esperada
+                    l.nombre AS libro, p.fecha_entrega, p.fecha_devolucion_esperada
              FROM prestamos p
              JOIN usuarios u ON p.id_alumno = u.id_usuario
-             JOIN materiales m ON p.id_material = m.id_material
+             JOIN libros l ON p.id_libro = l.id_libro
              WHERE p.tipo_prestamo = 'Libro' AND p.estado = 'Activo'
              ORDER BY p.fecha_devolucion_esperada ASC`
         );
@@ -142,10 +142,10 @@ exports.reporteInventario = async (req, res) => {
         // Préstamos vencidos
         const [prestamosVencidos] = await pool.query(
             `SELECT p.id_prestamo, u.nombre_completo AS alumno, u.numero_control,
-                    m.nombre AS libro, p.fecha_entrega, p.fecha_devolucion_esperada
+                    l.nombre AS libro, p.fecha_entrega, p.fecha_devolucion_esperada
              FROM prestamos p
              JOIN usuarios u ON p.id_alumno = u.id_usuario
-             JOIN materiales m ON p.id_material = m.id_material
+             JOIN libros l ON p.id_libro = l.id_libro
              WHERE p.tipo_prestamo = 'Libro' AND p.estado = 'Activo'
                AND p.fecha_devolucion_esperada < CURDATE()
              ORDER BY p.fecha_devolucion_esperada ASC`
@@ -158,7 +158,7 @@ exports.reporteInventario = async (req, res) => {
                 SUM(stock_total) AS total_ejemplares,
                 SUM(stock_disponible) AS total_disponibles,
                 SUM(stock_total - stock_disponible) AS total_prestados
-             FROM materiales WHERE id_categoria = 1`
+             FROM libros`
         );
 
         res.json({

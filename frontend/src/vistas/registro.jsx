@@ -44,7 +44,7 @@ const [telefono, setTelefono] = useState("");
 
 
   // Función para validar Registro
- const validarRegistro = () => {
+ const validarRegistro = async () => {
 
   let errores = {};
 
@@ -143,8 +143,37 @@ else {
     return;
   }
 
-  // Todo correcto
-  alert("Registro válido");
+  // Todo correcto, conectar con API
+  try {
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        numero_control: numeroControl,
+        nombre_completo: nombreCompleto,
+        grado: grado,
+        grupo: grupo,
+        turno: turno,
+        especialidad: especialidad,
+        telefono: telefono,
+        correo_electronico: correo,
+        contrasena: password
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      alert("Error: " + data.error);
+    } else {
+      alert("Registro exitoso. Ahora puedes iniciar sesión.");
+      window.location.href = "/";
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error de conexión al servidor");
+  }
 };
   return (
 
