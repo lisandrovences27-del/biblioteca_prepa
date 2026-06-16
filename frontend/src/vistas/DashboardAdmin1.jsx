@@ -9,9 +9,18 @@ import {
   FaCog,
   FaChartBar,
   FaClipboardList,
+  FaSignOutAlt,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import icono120 from "../assets/icono120.png";
 function DashboardAdmin1() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/");
+  };
 
   return (
 
@@ -56,7 +65,10 @@ function DashboardAdmin1() {
       <FaBell />
     </div>
 
-
+    {/* Cerrar Sesión */}
+    <div className="icon-box" onClick={handleLogout} title="Cerrar sesión" style={{ backgroundColor: "#991B1B", cursor: "pointer" }}>
+      <FaSignOutAlt />
+    </div>
 
     {/* Usuario */}
     <div className="profile-box">

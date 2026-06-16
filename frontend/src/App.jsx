@@ -7,6 +7,7 @@ import Registro from "./vistas/Registro";
 import Libros from "./vistas/Libros";
 import Prestamos from "./vistas/Prestamos";
 import PrestamosAlumno from "./vistas/prestamosAlumno";
+import ReportesBiblioteca from "./vistas/ReportesBiblioteca";
 
 function App() {
 
@@ -54,8 +55,13 @@ function App() {
         path="/mis-prestamos"
         element={<PrestamosAlumno />}
       />
+      <Route
+        path="/reportes"
+        element={<ReportesBiblioteca />}
+      />
 
     </Routes>
+
   );
 }
 
