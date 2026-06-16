@@ -81,8 +81,13 @@ function Login() {
           localStorage.setItem("token", data.token);
           localStorage.setItem("user", JSON.stringify(data.user));
           alert("Login exitoso. Bienvenido " + data.user.nombre);
-          // Redirigimos al dashboard de admin ya que es el que está listo por ahora
-          window.location.href = "/dashboard-admin";
+          
+          // Redirigir según el rol del usuario (3 = Alumno, 1 = Bibliotecaria, 2 = Encargada)
+          if (data.user.id_rol === 3) {
+            window.location.href = "/dashboard-alumno";
+          } else {
+            window.location.href = "/dashboard-admin";
+          }
         } else {
           setErrorBackend(data.error || "Error al iniciar sesión");
         }
