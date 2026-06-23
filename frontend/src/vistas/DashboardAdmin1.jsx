@@ -22,7 +22,7 @@ function DashboardAdmin1() {
 const handleLogout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  navigate("/");
+  window.location.href = "/";
 };
 
   return (
@@ -70,8 +70,9 @@ const handleLogout = () => {
 
     {/* Cerrar Sesión */}
     <div className="icon-box" onClick={() => setModalLogoutAbierto(true)} title="Cerrar sesión" style={{ backgroundColor: "#991B1B", cursor: "pointer" }}>
-      <FaSignOutAlt />
+      <FaSignOutAlt style={{ pointerEvents: "none" }} />
     </div>
+    
 
     {/* Usuario */}
     <div className="profile-box">

@@ -1,12 +1,12 @@
 import { Routes, Route } from "react-router-dom";
-import Login from "./vistas/Login";
+import Login from "./vistas/login";
 import DashboardAdmin1 from "./vistas/DashboardAdmin1";
 import DashboardAlumno from "./vistas/DashboardAlumno";
 import DashboardAdmin2 from "./vistas/DashboardAdmin2";
-import Registro from "./vistas/Registro";
+import Registro from "./vistas/registro";
 import Libros from "./vistas/Libros";
-import Prestamos from "./vistas/Prestamos";
-import PrestamosAlumno from "./vistas/prestamosAlumno";
+import Prestamos from "./vistas/prestamos";
+import PrestamosAlumno from "./vistas/PrestamosAlumno";
 import ReportesBiblioteca from "./vistas/ReportesBiblioteca";
 
 function App() {
