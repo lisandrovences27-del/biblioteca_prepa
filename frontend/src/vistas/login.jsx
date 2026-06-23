@@ -80,7 +80,6 @@ function Login() {
           // Guardar token y datos del usuario
           localStorage.setItem("token", data.token);
           localStorage.setItem("user", JSON.stringify(data.user));
-          alert("Login exitoso. Bienvenido " + data.user.nombre);
           
           // Redirigir según el rol del usuario (3 = Alumno, 1 = Bibliotecaria, 2 = Encargada)
           if (data.user.id_rol === 3) {
