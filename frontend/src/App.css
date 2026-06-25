@@ -1210,7 +1210,10 @@ select {
 
   clear: both;
 }
-
+.table-section td {
+  padding: 10px;
+  vertical-align: middle;
+}
 
 
 /* Header tabla */
@@ -1503,7 +1506,7 @@ tbody tr:hover {
 }
 
 .sidebar-logo{
-  width: 55px;
+  width: 85px;
   height: 55px;
   flex-shrink: 0;
 }
@@ -1796,6 +1799,10 @@ img{
 .inv-btn-editar:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(10, 31, 68, 0.35);
+}
+.inv-btn-editar:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .inv-btn-eliminar {
