@@ -1,5 +1,6 @@
 import "../App.css";
 import SidebarAlumno from "../componentes/SidebarAlumno";
+import LogoutButton from "../componentes/LogoutButton";
 import {
   FaBook,
   FaBoxOpen,
@@ -56,6 +57,8 @@ function DashboardAlumno() {
     <div className="icon-box">
       <FaBell />
     </div>
+
+    <LogoutButton />
 
     {/* Usuario */}
     <div className="profile-box">

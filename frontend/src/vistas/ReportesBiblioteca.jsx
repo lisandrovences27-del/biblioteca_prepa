@@ -1,5 +1,6 @@
 import "../App.css";
 import Sidebar from "../componentes/Sidebar";
+import LogoutButton from "../componentes/LogoutButton";
 import {
   FaBook,
   FaUserGraduate,
@@ -94,7 +95,7 @@ function ReportesBiblioteca() {
             <h1>Reportes de Biblioteca</h1>
             <p>Estadísticas y análisis de préstamos de libros</p>
           </div>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
             <button style={{ ...btnActionStyle, backgroundColor: "#0A1F44" }} title="Generar reporte completo">
               <FaChartBar /> Generar Reporte
             </button>
@@ -104,6 +105,7 @@ function ReportesBiblioteca() {
             <button style={{ ...btnActionStyle, backgroundColor: "#059669" }} title="Exportar a Excel">
               <FaFileExcel /> Excel
             </button>
+            <LogoutButton />
           </div>
         </div>
 

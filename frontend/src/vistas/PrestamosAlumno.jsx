@@ -1,5 +1,6 @@
 import "../App.css";
 import SidebarAlumno from "../componentes/SidebarAlumno";
+import LogoutButton from "../componentes/LogoutButton";
 import {
   FaBook,
   FaPlus,
@@ -123,6 +124,9 @@ const alumnosPrueba = {
       Registra préstamos de libros para los alumnos.
     </p>
 
+  </div>
+  <div className="topbar-right" style={{ display: "flex", alignItems: "center" }}>
+    <LogoutButton />
   </div>
 
 </div>
