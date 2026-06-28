@@ -1,5 +1,6 @@
 import "../App.css";
 import Sidebar from "../componentes/Sidebar";
+import LogoutButton from "../componentes/LogoutButton";
 import { useState, useEffect } from "react";
 import {
   FaBook,
@@ -244,10 +245,11 @@ function Libros() {
             <h1> <FaBook /> Inventario de Libros</h1>
             <p>Gestiona el catálogo y stock de libros de la biblioteca.</p>
           </div>
-          <div className="topbar-right">
+          <div className="topbar-right" style={{ display: "flex", alignItems: "center" }}>
             <button className="inv-btn-agregar" onClick={abrirModalAgregar}>
               <FaPlus /> Agregar Libro
             </button>
+            <LogoutButton />
           </div>
         </div>
 

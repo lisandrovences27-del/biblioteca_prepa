@@ -560,6 +560,8 @@ footer {
   top: -120px;
 
   right: -80px;
+
+  pointer-events: none;
 }
 
 
@@ -583,6 +585,8 @@ footer {
   bottom: -100px;
 
   left: 40%;
+
+  pointer-events: none;
 }
 /* Textos */
 

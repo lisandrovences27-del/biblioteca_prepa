@@ -1,5 +1,6 @@
 import "../App.css";
 import Sidebar from "../componentes/Sidebar";
+import LogoutButton from "../componentes/LogoutButton";
 import {
   FaCheck,
   FaTimes,
@@ -196,6 +197,9 @@ function Prestamos() {
           <div>
             <h1>Gestión de Solicitudes</h1>
             <p>Administra, autoriza o deniega los préstamos solicitados por los alumnos.</p>
+          </div>
+          <div className="topbar-right" style={{ display: "flex", alignItems: "center" }}>
+            <LogoutButton />
           </div>
         </div>
 
