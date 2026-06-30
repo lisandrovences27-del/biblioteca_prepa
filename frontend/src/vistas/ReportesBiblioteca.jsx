@@ -60,7 +60,7 @@ const retrasosAlertas = [
 ];
 
 function ReportesBiblioteca() {
-  
+
   // Estilos en Línea Reutilizables (Para no depender de modificaciones en App.css)
   const btnActionStyle = {
     padding: "10px 18px", borderRadius: "10px", border: "none",
@@ -88,7 +88,7 @@ function ReportesBiblioteca() {
       <Sidebar />
 
       <main className="main-content">
-        
+
         {/* ===== ENCABEZADO Y ACCIONES ===== */}
         <div className="topbar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
           <div>
@@ -111,7 +111,7 @@ function ReportesBiblioteca() {
 
         {/* ===== TARJETAS ESTADÍSTICAS SUPERIORES ===== */}
         <div className="cards-container" style={{ marginTop: "30px" }}>
-          
+
           <div className="dashboard-card blue-card">
             <div className="card-left">
               <div className="card-icon-circle" style={{ backgroundColor: "#0A1F44", color: "white" }}>
@@ -173,27 +173,27 @@ function ReportesBiblioteca() {
               <FaCalendarAlt /> Préstamos por mes
             </h2>
           </div>
-          
+
           <div style={{ height: "250px", display: "flex", alignItems: "flex-end", gap: "2%", padding: "10px 0", borderBottom: "2px solid #eee", borderLeft: "2px solid #eee" }}>
             {datosGrafica.map((dato, idx) => {
               const alturaPorcentaje = (dato.valor / dato.max) * 100;
               return (
                 <div key={idx} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "flex-end", position: "relative", group: "chart-bar" }}>
-                  
+
                   {/* Etiqueta Tooltip Simulada */}
                   <div style={{ fontSize: "12px", fontWeight: "bold", color: "#691C32", marginBottom: "5px" }}>
                     {dato.valor}
                   </div>
-                  
+
                   {/* Barra CSS */}
-                  <div style={{ 
-                    width: "100%", 
-                    height: `${alturaPorcentaje}%`, 
+                  <div style={{
+                    width: "100%",
+                    height: `${alturaPorcentaje}%`,
                     background: "linear-gradient(to top, #0A1F44, #691C32)",
                     borderRadius: "4px 4px 0 0",
                     transition: "height 0.5s ease"
                   }}></div>
-                  
+
                   {/* Etiqueta Mes */}
                   <div style={{ position: "absolute", bottom: "-30px", fontSize: "12px", color: "#666", fontWeight: "bold" }}>
                     {dato.mes}
@@ -209,7 +209,7 @@ function ReportesBiblioteca() {
 
         {/* ===== TABLAS DIVIDIDAS (2 COLUMNAS) ===== */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "30px", marginTop: "30px" }}>
-          
+
           {/* TABLA: LIBROS MÁS SOLICITADOS */}
           <div style={cardStyle}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
@@ -234,15 +234,15 @@ function ReportesBiblioteca() {
                   <tr>
                     <th style={tableHeaderStyle}>Libro</th>
                     <th style={tableHeaderStyle}>Autor</th>
-                    <th style={{...tableHeaderStyle, textAlign: "center"}}>Préstamos</th>
+                    <th style={{ ...tableHeaderStyle, textAlign: "center" }}>Préstamos</th>
                   </tr>
                 </thead>
                 <tbody>
                   {librosTop.map((item, index) => (
                     <tr key={item.id} style={{ backgroundColor: index % 2 === 0 ? "white" : "#fbfbfb" }}>
-                      <td style={{...tableCellStyle, fontWeight: "bold"}}>{item.libro}</td>
+                      <td style={{ ...tableCellStyle, fontWeight: "bold" }}>{item.libro}</td>
                       <td style={tableCellStyle}>{item.autor}</td>
-                      <td style={{...tableCellStyle, textAlign: "center", fontWeight: "bold", color: "#691C32"}}>
+                      <td style={{ ...tableCellStyle, textAlign: "center", fontWeight: "bold", color: "#691C32" }}>
                         {item.veces}
                       </td>
                     </tr>
@@ -276,16 +276,16 @@ function ReportesBiblioteca() {
                     <th style={tableHeaderStyle}>Matrícula</th>
                     <th style={tableHeaderStyle}>Nombre</th>
                     <th style={tableHeaderStyle}>Grupo</th>
-                    <th style={{...tableHeaderStyle, textAlign: "center"}}>Total</th>
+                    <th style={{ ...tableHeaderStyle, textAlign: "center" }}>Total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {alumnosTop.map((alumno, index) => (
                     <tr key={alumno.matricula} style={{ backgroundColor: index % 2 === 0 ? "white" : "#fbfbfb" }}>
                       <td style={tableCellStyle}>{alumno.matricula}</td>
-                      <td style={{...tableCellStyle, fontWeight: "bold"}}>{alumno.nombre}</td>
-                      <td style={{...tableCellStyle, color: "#888", fontSize: "12px"}}>{alumno.grupo}</td>
-                      <td style={{...tableCellStyle, textAlign: "center", fontWeight: "bold", color: "#0A1F44"}}>
+                      <td style={{ ...tableCellStyle, fontWeight: "bold" }}>{alumno.nombre}</td>
+                      <td style={{ ...tableCellStyle, color: "#888", fontSize: "12px" }}>{alumno.grupo}</td>
+                      <td style={{ ...tableCellStyle, textAlign: "center", fontWeight: "bold", color: "#0A1F44" }}>
                         {alumno.cantidad}
                       </td>
                     </tr>
@@ -302,26 +302,26 @@ function ReportesBiblioteca() {
           <h2 style={{ margin: 0, color: "#991B1B", fontSize: "20px", display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
             <FaExclamationTriangle /> Reporte de Retrasos Activos
           </h2>
-          
+
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", backgroundColor: "white", borderRadius: "10px", overflow: "hidden" }}>
               <thead>
                 <tr>
-                  <th style={{...tableHeaderStyle, backgroundColor: "#fca5a5", color: "#7f1d1d"}}>Alumno</th>
-                  <th style={{...tableHeaderStyle, backgroundColor: "#fca5a5", color: "#7f1d1d"}}>Libro / Recurso</th>
-                  <th style={{...tableHeaderStyle, backgroundColor: "#fca5a5", color: "#7f1d1d", textAlign: "center"}}>Días de Retraso</th>
-                  <th style={{...tableHeaderStyle, backgroundColor: "#fca5a5", color: "#7f1d1d", textAlign: "center"}}>Acción Sugerida</th>
+                  <th style={{ ...tableHeaderStyle, backgroundColor: "#fca5a5", color: "#7f1d1d" }}>Alumno</th>
+                  <th style={{ ...tableHeaderStyle, backgroundColor: "#fca5a5", color: "#7f1d1d" }}>Libro / Recurso</th>
+                  <th style={{ ...tableHeaderStyle, backgroundColor: "#fca5a5", color: "#7f1d1d", textAlign: "center" }}>Días de Retraso</th>
+                  <th style={{ ...tableHeaderStyle, backgroundColor: "#fca5a5", color: "#7f1d1d", textAlign: "center" }}>Acción Sugerida</th>
                 </tr>
               </thead>
               <tbody>
                 {retrasosAlertas.map((retraso, index) => (
                   <tr key={retraso.id} style={{ borderBottom: "1px solid #fee2e2" }}>
-                    <td style={{...tableCellStyle, fontWeight: "bold"}}>{retraso.alumno}</td>
+                    <td style={{ ...tableCellStyle, fontWeight: "bold" }}>{retraso.alumno}</td>
                     <td style={tableCellStyle}>{retraso.libro}</td>
-                    <td style={{...tableCellStyle, textAlign: "center", fontWeight: "bold", color: "#dc2626"}}>
-                      <FaClock style={{ marginRight: "5px" }}/> {retraso.dias} días
+                    <td style={{ ...tableCellStyle, textAlign: "center", fontWeight: "bold", color: "#dc2626" }}>
+                      <FaClock style={{ marginRight: "5px" }} /> {retraso.dias} días
                     </td>
-                    <td style={{...tableCellStyle, textAlign: "center"}}>
+                    <td style={{ ...tableCellStyle, textAlign: "center" }}>
                       <button style={{ padding: "6px 12px", borderRadius: "6px", border: "1px solid #dc2626", backgroundColor: "transparent", color: "#dc2626", fontWeight: "bold", cursor: "pointer" }}>
                         Enviar Notificación
                       </button>

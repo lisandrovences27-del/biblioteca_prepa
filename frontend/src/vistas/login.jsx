@@ -72,6 +72,8 @@ function Login() {
       body: JSON.stringify({
         correo_electronico: correo,
         contrasena: password,
+        tipoUsuario: tipoUsuario,
+        numero_control: numeroControl
       }),
     })
       .then((res) => res.json())
