@@ -56,16 +56,26 @@ exports.getMaterialById = async (req, res) => {
 // Crear nuevo material (Encargada de Equipo)
 exports.createMaterial = async (req, res) => {
     try {
-        const { nombre, especificaciones, id_categoria, stock_total, codigo_interno, imagen } = req.body;
+        const { nombre, especificaciones, categoria_nombre, stock_total, codigo_interno, imagen } = req.body;
 
-        if (!nombre || !id_categoria || stock_total === undefined) {
+        if (!nombre || !categoria_nombre || stock_total === undefined) {
             return res.status(400).json({ error: 'Nombre, categoría y stock total son obligatorios' });
         }
         
-        // Verificar que la categoría le pertenezca (id_rol_encargado = 2)
-        const [categoria] = await pool.query('SELECT * FROM categorias_material WHERE id_categoria = ?', [id_categoria]);
-        if (categoria.length === 0 || categoria[0].id_rol_encargado !== 2) {
-            return res.status(400).json({ error: 'Categoría inválida o no permitida para este rol' });
+        let [categoria] = await pool.query('SELECT * FROM categorias_material WHERE LOWER(nombre) = LOWER(?)', [categoria_nombre.trim()]);
+        
+        let id_categoria;
+        if (categoria.length === 0) {
+            const [newCat] = await pool.query(
+                'INSERT INTO categorias_material (nombre, id_rol_encargado) VALUES (?, 2)',
+                [categoria_nombre.trim()]
+            );
+            id_categoria = newCat.insertId;
+        } else {
+            if (categoria[0].id_rol_encargado !== 2) {
+                return res.status(400).json({ error: 'Esa categoría no pertenece a materiales' });
+            }
+            id_categoria = categoria[0].id_categoria;
         }
 
         const [result] = await pool.query(
@@ -83,7 +93,24 @@ exports.createMaterial = async (req, res) => {
 exports.updateMaterial = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, especificaciones, id_categoria, stock_total, stock_disponible, codigo_interno, imagen } = req.body;
+        const { nombre, especificaciones, categoria_nombre, stock_total, stock_disponible, codigo_interno, imagen } = req.body;
+        
+        let id_categoria;
+        if (categoria_nombre) {
+            let [categoria] = await pool.query('SELECT * FROM categorias_material WHERE LOWER(nombre) = LOWER(?)', [categoria_nombre.trim()]);
+            if (categoria.length === 0) {
+                const [newCat] = await pool.query(
+                    'INSERT INTO categorias_material (nombre, id_rol_encargado) VALUES (?, 2)',
+                    [categoria_nombre.trim()]
+                );
+                id_categoria = newCat.insertId;
+            } else {
+                if (categoria[0].id_rol_encargado !== 2) {
+                    return res.status(400).json({ error: 'Esa categoría no pertenece a materiales' });
+                }
+                id_categoria = categoria[0].id_categoria;
+            }
+        }
         
         const [result] = await pool.query(
             'UPDATE materiales SET nombre=?, especificaciones=?, id_categoria=?, stock_total=?, stock_disponible=?, codigo_interno=?, imagen=? WHERE id_material=? AND id_categoria != 1',

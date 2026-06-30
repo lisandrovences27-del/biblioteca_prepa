@@ -15,6 +15,7 @@ import {
 
 function Materiales() {
   const [materiales, setMateriales] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [busqueda, setBusqueda] = useState("");
@@ -31,6 +32,7 @@ function Materiales() {
   const [form, setForm] = useState({
     nombre: "",
     especificaciones: "",
+    categoria_nombre: "",
     stock_total: "",
     stock_disponible: "",
     codigo_interno: "",
@@ -40,30 +42,30 @@ function Materiales() {
   const getToken = () => localStorage.getItem("token");
 
   // Cargar ateriales 
- const cargarMateriales = async () => {
-  try {
-    setLoading(true);
+  const cargarMateriales = async () => {
+    try {
+      setLoading(true);
 
-    const res = await fetch("/api/materiales", {
-      headers: {
-        Authorization: `Bearer ${getToken()}`
-      }
-    });
+      const res = await fetch("/api/materiales", {
+        headers: {
+          Authorization: `Bearer ${getToken()}`
+        }
+      });
 
-    if (!res.ok) throw new Error("Error al cargar materiales");
-    const data = await res.json();
-    setMateriales(data);
-  } catch (err) {
-    console.error(err);
+      if (!res.ok) throw new Error("Error al cargar materiales");
+      const data = await res.json();
+      setMateriales(data);
+    } catch (err) {
+      console.error(err);
 
-    setError("No se pudieron cargar los materiales.");
+      setError("No se pudieron cargar los materiales.");
 
-  } finally {
+    } finally {
 
-    setLoading(false);
+      setLoading(false);
 
-  }
-};
+    }
+  };
 
   useEffect(() => {
     cargarMateriales();
@@ -81,12 +83,12 @@ function Materiales() {
   }, [exito, error]);
 
   // Filtrar libros por búsqueda
-const materialesFiltrados = materiales.filter(
-  (material) =>
-    material.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    material.codigo_interno?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    material.especificaciones?.toLowerCase().includes(busqueda.toLowerCase()) 
-);
+  const materialesFiltrados = materiales.filter(
+    (material) =>
+      material.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      material.codigo_interno?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      material.especificaciones?.toLowerCase().includes(busqueda.toLowerCase())
+  );
 
   // Abrir modal para agregar
   const abrirModalAgregar = () => {
@@ -94,6 +96,7 @@ const materialesFiltrados = materiales.filter(
     setForm({
       nombre: "",
       especificaciones: "",
+      categoria_nombre: "",
       stock_total: "",
       stock_disponible: "",
       codigo_interno: "",
@@ -103,587 +106,551 @@ const materialesFiltrados = materiales.filter(
   };
 
   // Abrir modal para editar
-const abrirModalEditar=(material)=>{
+  const abrirModalEditar = (material) => {
 
     setMaterialEditar(material);
 
     setForm({
 
-        nombre:material.nombre || "",
-        especificaciones:material.especificaciones || "",
-        stock_total:material.stock_total ?? "",
-        stock_disponible:material.stock_disponible ?? "",
-        codigo_interno:material.codigo_interno || "",
-        imagen:material.imagen || ""
+      nombre: material.nombre || "",
+      especificaciones: material.especificaciones || "",
+      categoria_nombre: material.categoria_nombre || "",
+      stock_total: material.stock_total ?? "",
+      stock_disponible: material.stock_disponible ?? "",
+      codigo_interno: material.codigo_interno || "",
+      imagen: material.imagen || ""
 
     });
 
     setModalAbierto(true);
 
-};
-const guardarMaterial = async(e)=>{
+  };
+  const guardarMaterial = async (e) => {
 
     e.preventDefault();
 
-    if(!form.nombre || form.stock_total===""){
+    if (!form.nombre || form.stock_total === "" || !form.categoria_nombre) {
 
-        setError("El nombre y stock total son obligatorios.");
+      setError("El nombre, categoría y stock total son obligatorios.");
 
-        return;
+      return;
 
     }
 
-    try{
+    try {
 
-        const url = materialEditar
+      const url = materialEditar
         ? `/api/materiales/${materialEditar.id_material}`
         : "/api/materiales";
 
-        const method = materialEditar ? "PUT":"POST";
+      const method = materialEditar ? "PUT" : "POST";
 
-        const body={
+      const body = {
 
-            nombre:form.nombre,
-            especificaciones:form.especificaciones || null,
-            stock_total:parseInt(form.stock_total),
-            codigo_interno:form.codigo_interno || null,
-            imagen:form.imagen || null
+        nombre: form.nombre,
+        especificaciones: form.especificaciones || null,
+        categoria_nombre: form.categoria_nombre.trim(),
+        stock_total: parseInt(form.stock_total),
+        codigo_interno: form.codigo_interno || null,
+        imagen: form.imagen || null
 
-        };
+      };
 
-        if(materialEditar){
+      if (materialEditar) {
 
-            body.stock_disponible=parseInt(form.stock_disponible);
+        body.stock_disponible = parseInt(form.stock_disponible);
 
-        }
+      }
 
-        const res=await fetch(url,{
+      const res = await fetch(url, {
 
-            method,
+        method,
 
-            headers:{
+        headers: {
 
-                "Content-Type":"application/json",
+          "Content-Type": "application/json",
 
-                Authorization:`Bearer ${getToken()}`
-            },
-            body:JSON.stringify(body)
-        });
-        if(!res.ok){
-            const data=await res.json();
-            throw new Error(data.error || "Error al guardar.");
-        }
+          Authorization: `Bearer ${getToken()}`
+        },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Error al guardar.");
+      }
 
-        setExito(
-            materialEditar
-            ? "Material actualizado correctamente."
-            : "Material agregado correctamente."
+      setExito(
+        materialEditar
+          ? "Material actualizado correctamente."
+          : "Material agregado correctamente."
 
-        );
+      );
 
-        setModalAbierto(false);
-        cargarMateriales();
-
-    }
-
-    catch(err){
-
-        setError(err.message);
+      setModalAbierto(false);
+      cargarMateriales();
 
     }
 
-};
+    catch (err) {
+
+      setError(err.message);
+
+    }
+
+  };
   // Confirmar eliminación
   const confirmarEliminar = (material) => {
     setMaterialEliminar(material);
     setModalEliminar(true);
   };
-const eliminarMaterial=async()=>{
-    try{
-        const res=await fetch(
-            `/api/materiales/${materialEliminar.id_material}`,
-            {
-                method:"DELETE",
-                headers:{
-                    Authorization:`Bearer ${getToken()}`
-                }
-            }
-        );
-        if(!res.ok){
-            const data=await res.json();
-            throw new Error(data.error);
+  const eliminarMaterial = async () => {
+    try {
+      const res = await fetch(
+        `/api/materiales/${materialEliminar.id_material}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${getToken()}`
+          }
         }
-        setExito("Material eliminado correctamente.");
-        setModalEliminar(false);
-        setMaterialEliminar(null);
-        cargarMateriales();
+      );
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error);
+      }
+      setExito("Material eliminado correctamente.");
+      setModalEliminar(false);
+      setMaterialEliminar(null);
+      cargarMateriales();
     }
-    catch(err){
-        setError(err.message);
+    catch (err) {
+      setError(err.message);
     }
-};
+  };
 
-  const getStockBadge=(disponible,total)=>{
-    const porcentaje=total>0
-        ? (disponible/total)*100
-        :0;
-    if(porcentaje===0){
-        return <span className="status inv-agotado">Agotado</span>;
+  const getStockBadge = (disponible, total) => {
+    const porcentaje = total > 0
+      ? (disponible / total) * 100
+      : 0;
+    if (porcentaje === 0) {
+      return <span className="status inv-agotado">Agotado</span>;
     }
-    if(porcentaje<=30){
-        return <span className="status inv-bajo">Bajo</span>;
+    if (porcentaje <= 30) {
+      return <span className="status inv-bajo">Bajo</span>;
     }
     return <span className="status inv-disponible">Disponible</span>;
-};
+  };
 
-const totalMateriales=materiales.length;
-const totalEjemplares=materiales.reduce(
-(sum,m)=>sum+(m.stock_total ||0),0
-);
-const totalDisponibles=materiales.reduce(
-(sum,m)=>sum+(m.stock_disponible ||0),0
-);
-const totalPrestados=totalEjemplares-totalDisponibles;
+  const totalMateriales = materiales.length;
+  const totalEjemplares = materiales.reduce(
+    (sum, m) => sum + (m.stock_total || 0), 0
+  );
+  const totalDisponibles = materiales.reduce(
+    (sum, m) => sum + (m.stock_disponible || 0), 0
+  );
+  const totalPrestados = totalEjemplares - totalDisponibles;
 
-return (
-  <div className="dashboard">
+  return (
+    <div className="dashboard">
 
-    <SidebarMateriales />
+      <SidebarMateriales />
 
-    <main className="main-content">
+      <main className="main-content">
 
-      {/* ================= TOPBAR ================= */}
+        {/* ================= TOPBAR ================= */}
 
-      <div className="topbar">
+        <div className="topbar">
 
-        <div>
+          <div>
 
-          <h1>
-            <FaBoxOpen /> Inventario de Materiales
-          </h1>
+            <h1>
+              <FaBoxOpen /> Inventario de Materiales
+            </h1>
 
-          <p>
-            Gestiona el inventario y stock de materiales de la biblioteca.
-          </p>
+            <p>
+              Gestiona el inventario y stock de materiales de la biblioteca.
+            </p>
 
-        </div>
+          </div>
 
-        <div
-          className="topbar-right"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-          }}
-        >
-
-          <button
-            className="inv-btn-agregar"
-            onClick={abrirModalAgregar}
+          <div
+            className="topbar-right"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
           >
-            <FaPlus />
-            Agregar Material
-          </button>
 
-          <LogoutButton />
+            <button
+              className="inv-btn-agregar"
+              onClick={abrirModalAgregar}
+            >
+              <FaPlus />
+              Agregar Material
+            </button>
 
-        </div>
-
-      </div>
-
-      {/* ================= MENSAJES ================= */}
-
-      {exito && (
-        <div className="inv-mensaje inv-mensaje-exito">
-          {exito}
-        </div>
-      )}
-
-      {error && (
-        <div className="inv-mensaje inv-mensaje-error">
-          {error}
-        </div>
-      )}
-
-      {/* ================= RESUMEN ================= */}
-
-      <div className="inv-resumen-grid">
-
-        <div className="inv-resumen-card">
-
-          <div className="inv-resumen-icono inv-icono-total">
-            <FaBoxOpen />
-          </div>
-
-          <div>
-
-            <p className="inv-resumen-label">
-              Total Materiales
-            </p>
-
-            <h3 className="inv-resumen-valor">
-              {totalMateriales}
-            </h3>
+            <LogoutButton />
 
           </div>
 
         </div>
 
-        <div className="inv-resumen-card">
+        {/* ================= MENSAJES ================= */}
 
-          <div className="inv-resumen-icono inv-icono-ejemplares">
-            <FaBoxOpen />
+        {exito && (
+          <div className="inv-mensaje inv-mensaje-exito">
+            {exito}
+          </div>
+        )}
+
+        {error && (
+          <div className="inv-mensaje inv-mensaje-error">
+            {error}
+          </div>
+        )}
+
+        {/* ================= RESUMEN ================= */}
+
+        <div className="inv-resumen-grid">
+
+          <div className="inv-resumen-card">
+
+            <div className="inv-resumen-icono inv-icono-total">
+              <FaBoxOpen />
+            </div>
+
+            <div>
+
+              <p className="inv-resumen-label">
+                Total Materiales
+              </p>
+
+              <h3 className="inv-resumen-valor">
+                {totalMateriales}
+              </h3>
+
+            </div>
+
           </div>
 
-          <div>
+          <div className="inv-resumen-card">
 
-            <p className="inv-resumen-label">
-              Existencias
-            </p>
+            <div className="inv-resumen-icono inv-icono-ejemplares">
+              <FaBoxOpen />
+            </div>
 
-            <h3 className="inv-resumen-valor">
-              {totalEjemplares}
-            </h3>
+            <div>
+
+              <p className="inv-resumen-label">
+                Existencias
+              </p>
+
+              <h3 className="inv-resumen-valor">
+                {totalEjemplares}
+              </h3>
+
+            </div>
+
+          </div>
+
+          <div className="inv-resumen-card">
+
+            <div className="inv-resumen-icono inv-icono-disponibles">
+              <FaBoxOpen />
+            </div>
+
+            <div>
+
+              <p className="inv-resumen-label">
+                Disponibles
+              </p>
+
+              <h3 className="inv-resumen-valor">
+                {totalDisponibles}
+              </h3>
+
+            </div>
+
+          </div>
+
+          <div className="inv-resumen-card">
+
+            <div className="inv-resumen-icono inv-icono-prestados">
+              <FaExclamationTriangle />
+            </div>
+
+            <div>
+
+              <p className="inv-resumen-label">
+                Prestados
+              </p>
+
+              <h3 className="inv-resumen-valor">
+                {totalPrestados}
+              </h3>
+
+            </div>
 
           </div>
 
         </div>
 
-        <div className="inv-resumen-card">
+        {/* ================= TABLA ================= */}
 
-          <div className="inv-resumen-icono inv-icono-disponibles">
-            <FaBoxOpen />
-          </div>
+        <div className="table-section">
 
-          <div>
+          <div className="table-header">
 
-            <p className="inv-resumen-label">
-              Disponibles
-            </p>
+            <h2>
+              Base de Datos de Materiales
+            </h2>
 
-            <h3 className="inv-resumen-valor">
-              {totalDisponibles}
-            </h3>
+            <div className="inv-buscador-container">
 
-          </div>
+              <FaSearch className="inv-buscador-icono" />
 
-        </div>
-
-        <div className="inv-resumen-card">
-
-          <div className="inv-resumen-icono inv-icono-prestados">
-            <FaExclamationTriangle />
-          </div>
-
-          <div>
-
-            <p className="inv-resumen-label">
-              Prestados
-            </p>
-
-            <h3 className="inv-resumen-valor">
-              {totalPrestados}
-            </h3>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* ================= TABLA ================= */}
-
-      <div className="table-section">
-
-        <div className="table-header">
-
-          <h2>
-            Base de Datos de Materiales
-          </h2>
-
-          <div className="inv-buscador-container">
-
-            <FaSearch className="inv-buscador-icono" />
-
-            <input
-              type="text"
-              className="inv-buscador"
-              placeholder="Buscar por nombre, código o especificaciones..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
-
-            {busqueda && (
-
-              <FaTimes
-                className="inv-buscador-limpiar"
-                onClick={() => setBusqueda("")}
+              <input
+                type="text"
+                className="inv-buscador"
+                placeholder="Buscar por nombre, código o especificaciones..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
               />
+
+              {busqueda && (
+
+                <FaTimes
+                  className="inv-buscador-limpiar"
+                  onClick={() => setBusqueda("")}
+                />
+
+              )}
+
+            </div>
+
+          </div>
+
+          <div className="table-container">
+
+            {loading ? (
+
+              <div className="inv-loading">
+
+                <div className="inv-spinner"></div>
+
+                <p>
+                  Cargando materiales...
+                </p>
+
+              </div>
+
+            ) : materialesFiltrados.length === 0 ? (
+
+              <div className="inv-vacio">
+
+                <FaBoxOpen className="inv-vacio-icono" />
+
+                <p>
+
+                  {busqueda
+
+                    ? "No se encontraron materiales."
+
+                    : "No hay materiales registrados."}
+
+                </p>
+
+              </div>
+
+            ) : (
+
+              <table id="tabla-inventario">
+
+                <thead>
+
+                  <tr>
+
+                    <th>#</th>
+
+                    <th>Código</th>
+
+                    <th>Material</th>
+
+                    <th>Especificaciones</th>
+
+                    <th>Disponibles</th>
+
+                    <th>Prestados</th>
+
+                    <th>Estado</th>
+
+                    <th>Acciones</th>
+
+                  </tr>
+
+                </thead>
+
+                <tbody>
+
+                  {materialesFiltrados.map((material, index) => (
+
+                    <tr key={material.id_material}>
+
+                      <td className="inv-td-num">
+
+                        {index + 1}
+
+                      </td>
+
+                      <td>
+
+                        <span className="inv-codigo">
+
+                          {material.codigo_interno || "—"}
+
+                        </span>
+
+                      </td>
+
+                      <td className="inv-td-nombre">
+
+                        <div className="inv-nombre-wrap">
+
+                          <FaBoxOpen className="inv-nombre-icono" />
+
+                          {material.nombre}
+
+                        </div>
+
+                      </td>
+
+                      <td className="inv-td-specs">
+
+                        {material.especificaciones || "Sin especificaciones"}
+
+                      </td>
+
+                      <td className="inv-td-center">
+
+                        {material.stock_disponible} / {material.stock_total}
+
+                      </td>
+
+                      <td className="inv-td-center">
+
+                        {material.prestados || 0}
+
+                      </td>
+
+                      <td>
+
+                        {getStockBadge(
+                          material.stock_disponible,
+                          material.stock_total
+                        )}
+
+                      </td>
+
+                      <td>
+
+                        <div className="inv-acciones">
+
+                          <button
+                            className="inv-btn-editar"
+                            title="Editar"
+                            onClick={() => abrirModalEditar(material)}
+                          >
+
+                            <FaEdit />
+
+                          </button>
+
+                          <button
+                            className="inv-btn-eliminar"
+                            title="Eliminar"
+                            onClick={() => confirmarEliminar(material)}
+                          >
+
+                            <FaTrash />
+
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  ))}
+
+                </tbody>
+
+              </table>
 
             )}
 
           </div>
 
-        </div>
+          {!loading && materialesFiltrados.length > 0 && (
 
-        <div className="table-container">
+            <div className="inv-tabla-footer">
 
-          {loading ? (
-
-            <div className="inv-loading">
-
-              <div className="inv-spinner"></div>
-
-              <p>
-                Cargando materiales...
-              </p>
+              Mostrando {materialesFiltrados.length} de {materiales.length} materiales
 
             </div>
-
-          ) : materialesFiltrados.length === 0 ? (
-
-            <div className="inv-vacio">
-
-              <FaBoxOpen className="inv-vacio-icono" />
-
-              <p>
-
-                {busqueda
-
-                  ? "No se encontraron materiales."
-
-                  : "No hay materiales registrados."}
-
-              </p>
-
-            </div>
-
-          ) : (
-
-            <table id="tabla-inventario">
-
-              <thead>
-
-                <tr>
-
-                  <th>#</th>
-
-                  <th>Código</th>
-
-                  <th>Material</th>
-
-                  <th>Especificaciones</th>
-
-                  <th>Disponibles</th>
-
-                  <th>Prestados</th>
-
-                  <th>Estado</th>
-
-                  <th>Acciones</th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {materialesFiltrados.map((material, index) => (
-
-                  <tr key={material.id_material}>
-
-                    <td className="inv-td-num">
-
-                      {index + 1}
-
-                    </td>
-
-                    <td>
-
-                      <span className="inv-codigo">
-
-                        {material.codigo_interno || "—"}
-
-                      </span>
-
-                    </td>
-
-                    <td className="inv-td-nombre">
-
-                      <div className="inv-nombre-wrap">
-
-                        <FaBoxOpen className="inv-nombre-icono" />
-
-                        {material.nombre}
-
-                      </div>
-
-                    </td>
-
-                    <td className="inv-td-specs">
-
-                      {material.especificaciones || "Sin especificaciones"}
-
-                    </td>
-
-                    <td className="inv-td-center">
-
-                      {material.stock_disponible} / {material.stock_total}
-
-                    </td>
-
-                    <td className="inv-td-center">
-
-                      {material.prestados || 0}
-
-                    </td>
-
-                    <td>
-
-                      {getStockBadge(
-                        material.stock_disponible,
-                        material.stock_total
-                      )}
-
-                    </td>
-
-                    <td>
-
-                      <div className="inv-acciones">
-
-                        <button
-                          className="inv-btn-editar"
-                          title="Editar"
-                          onClick={() => abrirModalEditar(material)}
-                        >
-
-                          <FaEdit />
-
-                        </button>
-
-                        <button
-                          className="inv-btn-eliminar"
-                          title="Eliminar"
-                          onClick={() => confirmarEliminar(material)}
-                        >
-
-                          <FaTrash />
-
-                        </button>
-
-                      </div>
-
-                    </td>
-
-                  </tr>
-
-                ))}
-
-              </tbody>
-
-            </table>
 
           )}
 
         </div>
 
-        {!loading && materialesFiltrados.length > 0 && (
 
-          <div className="inv-tabla-footer">
 
-            Mostrando {materialesFiltrados.length} de {materiales.length} materiales
 
-          </div>
+        {/* ================= MODAL AGREGAR / EDITAR ================= */}
 
-        )}
-
-      </div>
-
-            
-            
-
-      {/* ================= MODAL AGREGAR / EDITAR ================= */}
-
-      {modalAbierto && (
-        <div
-          className="inv-modal-overlay"
-          onClick={() => setModalAbierto(false)}
-        >
+        {modalAbierto && (
           <div
-            className="inv-modal"
-            onClick={(e) => e.stopPropagation()}
+            className="inv-modal-overlay"
+            onClick={() => setModalAbierto(false)}
           >
-            <div className="inv-modal-header">
-
-              <h2>
-                {materialEditar
-                  ? "Editar Material"
-                  : "Agregar Nuevo Material"}
-              </h2>
-
-              <button
-                className="inv-modal-cerrar"
-                onClick={() => setModalAbierto(false)}
-              >
-                <FaTimes />
-              </button>
-
-            </div>
-
-            <form
-              onSubmit={guardarMaterial}
-              className="inv-modal-form"
+            <div
+              className="inv-modal"
+              onClick={(e) => e.stopPropagation()}
             >
+              <div className="inv-modal-header">
 
-              <div className="inv-form-grupo">
+                <h2>
+                  {materialEditar
+                    ? "Editar Material"
+                    : "Agregar Nuevo Material"}
+                </h2>
 
-                <label>Nombre del Material *</label>
-
-                <input
-                  type="text"
-                  value={form.nombre}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      nombre: e.target.value,
-                    })
-                  }
-                  required
-                />
+                <button
+                  className="inv-modal-cerrar"
+                  onClick={() => setModalAbierto(false)}
+                >
+                  <FaTimes />
+                </button>
 
               </div>
 
-              <div className="inv-form-grupo">
-
-                <label>Especificaciones</label>
-
-                <textarea
-                  rows="3"
-                  value={form.especificaciones}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      especificaciones: e.target.value,
-                    })
-                  }
-                />
-
-              </div>
-
-              <div className="inv-form-fila">
+              <form
+                onSubmit={guardarMaterial}
+                className="inv-modal-form"
+              >
 
                 <div className="inv-form-grupo">
 
-                  <label>Stock Total *</label>
+                  <label>Nombre del Material *</label>
 
                   <input
-                    type="number"
-                    min="0"
-                    value={form.stock_total}
+                    type="text"
+                    value={form.nombre}
                     onChange={(e) =>
                       setForm({
                         ...form,
-                        stock_total: e.target.value,
+                        nombre: e.target.value,
                       })
                     }
                     required
@@ -691,154 +658,203 @@ return (
 
                 </div>
 
-                {materialEditar && (
+                <div className="inv-form-grupo">
+                  <label>Categoría *</label>
+                  <input
+                    type="text"
+                    placeholder="Ej. Calculadoras"
+                    value={form.categoria_nombre}
+                    onChange={(e) => setForm({ ...form, categoria_nombre: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="inv-form-grupo">
+
+                  <label>Especificaciones</label>
+
+                  <textarea
+                    rows="3"
+                    value={form.especificaciones}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        especificaciones: e.target.value,
+                      })
+                    }
+                  />
+
+                </div>
+
+                <div className="inv-form-fila">
 
                   <div className="inv-form-grupo">
 
-                    <label>Stock Disponible</label>
+                    <label>Stock Total *</label>
 
                     <input
                       type="number"
                       min="0"
-                      value={form.stock_disponible}
+                      value={form.stock_total}
                       onChange={(e) =>
                         setForm({
                           ...form,
-                          stock_disponible: e.target.value,
+                          stock_total: e.target.value,
+                        })
+                      }
+                      required
+                    />
+
+                  </div>
+
+                  {materialEditar && (
+
+                    <div className="inv-form-grupo">
+
+                      <label>Stock Disponible</label>
+
+                      <input
+                        type="number"
+                        min="0"
+                        value={form.stock_disponible}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            stock_disponible: e.target.value,
+                          })
+                        }
+                      />
+
+                    </div>
+
+                  )}
+
+                </div>
+
+                <div className="inv-form-fila">
+
+                  <div className="inv-form-grupo">
+
+                    <label>Código Interno</label>
+
+                    <input
+                      type="text"
+                      value={form.codigo_interno}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          codigo_interno: e.target.value,
                         })
                       }
                     />
 
                   </div>
 
-                )}
+                  <div className="inv-form-grupo">
 
-              </div>
+                    <label>URL Imagen</label>
 
-              <div className="inv-form-fila">
+                    <input
+                      type="text"
+                      value={form.imagen}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          imagen: e.target.value,
+                        })
+                      }
+                    />
 
-                <div className="inv-form-grupo">
-
-                  <label>Código Interno</label>
-
-                  <input
-                    type="text"
-                    value={form.codigo_interno}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        codigo_interno: e.target.value,
-                      })
-                    }
-                  />
+                  </div>
 
                 </div>
 
-                <div className="inv-form-grupo">
+                <div className="inv-modal-acciones">
 
-                  <label>URL Imagen</label>
+                  <button
+                    type="button"
+                    className="inv-btn-cancelar"
+                    onClick={() => setModalAbierto(false)}
+                  >
+                    Cancelar
+                  </button>
 
-                  <input
-                    type="text"
-                    value={form.imagen}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        imagen: e.target.value,
-                      })
-                    }
-                  />
+                  <button
+                    type="submit"
+                    className="inv-btn-guardar"
+                  >
+                    {materialEditar
+                      ? "Guardar Cambios"
+                      : "Agregar Material"}
+                  </button>
 
                 </div>
 
+              </form>
+
+            </div>
+          </div>
+        )}
+
+        {/* ================= MODAL ELIMINAR ================= */}
+
+        {modalEliminar && (
+
+          <div
+            className="inv-modal-overlay"
+            onClick={() => setModalEliminar(false)}
+          >
+
+            <div
+              className="inv-modal inv-modal-eliminar"
+              onClick={(e) => e.stopPropagation()}
+            >
+
+              <div className="inv-eliminar-icono">
+                <FaExclamationTriangle />
               </div>
+
+              <h2>
+                ¿Eliminar este material?
+              </h2>
+
+              <p className="inv-eliminar-nombre">
+                "{materialEliminar?.nombre}"
+              </p>
+
+              <p className="inv-eliminar-aviso">
+                Esta acción no se puede deshacer.
+              </p>
 
               <div className="inv-modal-acciones">
 
                 <button
-                  type="button"
                   className="inv-btn-cancelar"
-                  onClick={() => setModalAbierto(false)}
+                  onClick={() => setModalEliminar(false)}
                 >
                   Cancelar
                 </button>
 
                 <button
-                  type="submit"
-                  className="inv-btn-guardar"
+                  className="inv-btn-confirmar-eliminar"
+                  onClick={eliminarMaterial}
                 >
-                  {materialEditar
-                    ? "Guardar Cambios"
-                    : "Agregar Material"}
+                  Sí, eliminar
                 </button>
 
               </div>
 
-            </form>
-
-          </div>
-        </div>
-      )}
-
-      {/* ================= MODAL ELIMINAR ================= */}
-
-      {modalEliminar && (
-
-        <div
-          className="inv-modal-overlay"
-          onClick={() => setModalEliminar(false)}
-        >
-
-          <div
-            className="inv-modal inv-modal-eliminar"
-            onClick={(e) => e.stopPropagation()}
-          >
-
-            <div className="inv-eliminar-icono">
-              <FaExclamationTriangle />
-            </div>
-
-            <h2>
-              ¿Eliminar este material?
-            </h2>
-
-            <p className="inv-eliminar-nombre">
-              "{materialEliminar?.nombre}"
-            </p>
-
-            <p className="inv-eliminar-aviso">
-              Esta acción no se puede deshacer.
-            </p>
-
-            <div className="inv-modal-acciones">
-
-              <button
-                className="inv-btn-cancelar"
-                onClick={() => setModalEliminar(false)}
-              >
-                Cancelar
-              </button>
-
-              <button
-                className="inv-btn-confirmar-eliminar"
-                onClick={eliminarMaterial}
-              >
-                Sí, eliminar
-              </button>
-
             </div>
 
           </div>
 
-        </div>
+        )}
 
-      )}
+      </main>
 
-    </main>
+    </div>
 
-  </div>
-
-);
+  );
 
 }
 
