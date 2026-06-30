@@ -40,7 +40,7 @@ function Sidebar() {
       isActive ? "active-menu" : ""
     }
     >
-            Dashboard
+            Inicio
           </NavLink>
         </li>
 
@@ -61,16 +61,6 @@ function Sidebar() {
     }
     >
             <FaClipboardList /> Préstamos
-          </NavLink>
-        </li>
-
-        <li>
-          <NavLink to="/alumnos"
-          className={({ isActive }) =>
-      isActive ? "active-menu" : ""
-    }
-    >
-            <FaUserGraduate /> Alumnos
           </NavLink>
         </li>
 

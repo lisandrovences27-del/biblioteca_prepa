@@ -1,5 +1,5 @@
 import "../App.css";
-import Sidebar from "../componentes/Sidebar";
+import SidebarMateriales from "../componentes/SidebarMateriales";
 import {
   FaBook,
   FaBoxOpen,
@@ -19,7 +19,7 @@ function DashboardAdmin2() {
   return (
 
     <div className="dashboard">
-      <Sidebar></Sidebar>
+      <SidebarMateriales></SidebarMateriales>
      {/* ===== CONTENIDO ===== */}
 <main className="main-content">
   
