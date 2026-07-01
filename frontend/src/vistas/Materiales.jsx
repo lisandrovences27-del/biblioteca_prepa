@@ -734,22 +734,7 @@ return (
 
                 </div>
 
-                <div className="inv-form-grupo">
 
-                  <label>URL Imagen</label>
-
-                  <input
-                    type="text"
-                    value={form.imagen}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        imagen: e.target.value,
-                      })
-                    }
-                  />
-
-                </div>
 
               </div>
 
