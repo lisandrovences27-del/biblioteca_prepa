@@ -98,6 +98,7 @@ const materialesFiltrados = materiales.filter(
       stock_disponible: "",
       codigo_interno: "",
       imagen: "",
+      categoria_nombre: "",
     });
     setModalAbierto(true);
   };
@@ -114,7 +115,8 @@ const abrirModalEditar=(material)=>{
         stock_total:material.stock_total ?? "",
         stock_disponible:material.stock_disponible ?? "",
         codigo_interno:material.codigo_interno || "",
-        imagen:material.imagen || ""
+        imagen:material.imagen || "",
+        categoria_nombre: material.categoria_nombre || ""
 
     });
 
@@ -125,9 +127,9 @@ const guardarMaterial = async(e)=>{
 
     e.preventDefault();
 
-    if(!form.nombre || form.stock_total===""){
+    if(!form.nombre || form.stock_total==="" || !form.categoria_nombre){
 
-        setError("El nombre y stock total son obligatorios.");
+        setError("El nombre, la categoría y el stock total son obligatorios.");
 
         return;
 
@@ -145,6 +147,7 @@ const guardarMaterial = async(e)=>{
 
             nombre:form.nombre,
             especificaciones:form.especificaciones || null,
+            categoria_nombre:form.categoria_nombre,
             stock_total:parseInt(form.stock_total),
             codigo_interno:form.codigo_interno || null,
             imagen:form.imagen || null
@@ -646,6 +649,24 @@ return (
                     setForm({
                       ...form,
                       nombre: e.target.value,
+                    })
+                  }
+                  required
+                />
+
+              </div>
+
+              <div className="inv-form-grupo">
+
+                <label>Categoría *</label>
+
+                <input
+                  type="text"
+                  value={form.categoria_nombre || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      categoria_nombre: e.target.value,
                     })
                   }
                   required
