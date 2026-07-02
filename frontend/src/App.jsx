@@ -7,6 +7,7 @@ import Registro from "./vistas/registro";
 import Libros from "./vistas/Libros";
 import Materiales from "./vistas/Materiales";
 import Prestamos from "./vistas/prestamos";
+import PrestamosMateriales from "./vistas/PrestamosMateriales";
 import PrestamosAlumno from "./vistas/PrestamosAlumno";
 import ReportesBiblioteca from "./vistas/ReportesBiblioteca";
 import LibrosAlumno from "./vistas/LibrosAlumno";
@@ -31,6 +32,7 @@ function App() {
       <Route path="/libros" element={<Libros />}/>
       {/* Ruta prestamos */}
       <Route path="/prestamos" element={<Prestamos />}/>
+      <Route path="/prestamos-materiales" element={<PrestamosMateriales />}/>
       <Route path="/dashboard-alumno" element={<DashboardAlumno />}/>
       <Route
         path="/mis-prestamos" element={<PrestamosAlumno />}/>

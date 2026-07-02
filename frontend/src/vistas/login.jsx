@@ -72,6 +72,8 @@ function Login() {
       body: JSON.stringify({
         correo_electronico: correo,
         contrasena: password,
+        tipoUsuario: tipoUsuario,
+        numero_control: numeroControl
       }),
     })
       .then((res) => res.json())
@@ -84,6 +86,8 @@ function Login() {
           // Redirigir según el rol del usuario (3 = Alumno, 1 = Bibliotecaria, 2 = Encargada)
           if (data.user.id_rol === 3) {
             window.location.href = "/dashboard-alumno";
+          } else if (data.user.id_rol === 2) {
+            window.location.href = "/dashboard-admin2";
           } else {
             window.location.href = "/dashboard-admin";
           }

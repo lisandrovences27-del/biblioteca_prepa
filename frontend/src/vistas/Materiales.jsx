@@ -731,11 +731,7 @@ return (
                       })
                     }
                   />
-
                 </div>
-
-
-
               </div>
 
               <div className="inv-modal-acciones">

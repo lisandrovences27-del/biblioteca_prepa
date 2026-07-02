@@ -33,9 +33,10 @@ exports.registerAlumno = async (req, res) => {
             return res.status(400).json({ error: 'El correo, número de control' + (curp ? ' o CURP' : '') + ' ya están registrados.' });
         }
 
-        // Hashear contraseña
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(contrasena, salt);
+        // Hashear contraseña (TEMPORALMENTE DESHABILITADO)
+        // const salt = await bcrypt.genSalt(10);
+        // const hashedPassword = await bcrypt.hash(contrasena, salt);
+        const hashedPassword = contrasena;
 
         // id_rol 3 es para Alumno según database.sql
         const [result] = await pool.query(
@@ -54,7 +55,7 @@ exports.registerAlumno = async (req, res) => {
 // Login general (para todos los perfiles)
 exports.login = async (req, res) => {
     try {
-        const { correo_electronico, contrasena } = req.body;
+        const { correo_electronico, contrasena, tipoUsuario, numero_control } = req.body;
 
         const [users] = await pool.query(
             'SELECT u.*, r.nombre as rol_nombre FROM usuarios u JOIN roles r ON u.id_rol = r.id_rol WHERE u.correo_electronico = ?',
@@ -66,6 +67,20 @@ exports.login = async (req, res) => {
         }
 
         const user = users[0];
+
+        // Validar tipo de usuario (Admin vs Alumno)
+        if (tipoUsuario === 'admin' && user.id_rol === 3) {
+            return res.status(403).json({ error: 'Acceso denegado. Tu cuenta no es de administrador.' });
+        }
+
+        if (tipoUsuario === 'alumno') {
+            if (user.id_rol !== 3) {
+                return res.status(403).json({ error: 'Acceso denegado. Ingresa desde el panel de Administrador.' });
+            }
+            if (user.numero_control !== numero_control) {
+                return res.status(400).json({ error: 'El número de control no coincide con tu cuenta.' });
+            }
+        }
 
         // Comparar contraseña (soporta hash y texto plano para usuarios de prueba)
         let validPassword = false;
