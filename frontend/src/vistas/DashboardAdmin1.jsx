@@ -1,5 +1,6 @@
 import "../App.css";
 import Sidebar from "../componentes/Sidebar";
+import Accesibilidad from "../componentes/Accesibilidad";
 import {
   FaBook,
   FaBoxOpen,
@@ -368,6 +369,7 @@ function DashboardAdmin1() {
     
       {/* ===== FIN DE LA PÁGINA ===== */}
 </main>
+<Accesibilidad/>
 </div>
 );
 }

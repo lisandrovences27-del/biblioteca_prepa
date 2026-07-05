@@ -1,5 +1,6 @@
 import "../App.css";
 import SidebarAlumno from "../componentes/SidebarAlumno";
+import Accesibilidad from "../componentes/Accesibilidad";
 import LogoutButton from "../componentes/LogoutButton";
 import {
   FaBook,
@@ -221,6 +222,7 @@ function DashboardAlumno() {
 
     
 </main>
+<Accesibilidad/>
 </div>
 );
 }

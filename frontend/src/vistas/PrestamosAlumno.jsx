@@ -12,61 +12,83 @@ import {
   FaExclamationTriangle,
   FaUserGraduate,
 } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function PrestamosAlumno() {
 
   const [numeroControl, setNumeroControl] = useState("");
   const [nombreAlumno, setNombreAlumno] = useState("");
+  const usuarioPrueba = {
+  numeroControl: "22308001",
+  nombre: "Juan Pérez"
+};
+
+localStorage.setItem(
+  "usuario",
+  JSON.stringify(usuarioPrueba)
+);
+  useEffect(() => {
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+  if (usuario) {
+    setNumeroControl(usuario.numeroControl);
+    setNombreAlumno(usuario.nombre);
+  }
+}, []);
   const [libroSeleccionado, setLibroSeleccionado] = useState("");
-  const [libros, setLibros] = useState([]);
+  const [recursos, setRecursos] = useState([]);
   const [fechaPrestamo, setFechaPrestamo] = useState("");
   const [fechaDevolucion, setFechaDevolucion] = useState("");
   const [observaciones, setObservaciones] = useState("");
   const [busquedaLibro, setBusquedaLibro] = useState("");
-const librosPrueba = [
-  "Matemáticas I",
-  "Física General",
-  "Química Básica",
-  "Biología",
-  "Anatomía Humana",
-  "Farmacología"
+const recursosPrueba = [
+  { nombre: "Matemáticas I", tipo: "Libro" },
+  { nombre: "Física General", tipo: "Libro" },
+  { nombre: "Química Básica", tipo: "Libro" },
+  { nombre: "Biología", tipo: "Libro" },
+
+  { nombre: "Proyector", tipo: "Material" },
+  { nombre: "Guillotina", tipo: "Material" },
+  { nombre: "Calculadora Científica", tipo: "Material" },
+  { nombre: "Cable HDMI", tipo: "Material" }
 ];
-const resultados = librosPrueba.filter(
-  libro =>
-    libro
+const resultados = recursosPrueba.filter(
+  (recurso) =>
+    recurso.nombre
       .toLowerCase()
-      .includes(
-        busquedaLibro.toLowerCase()
-      )
+      .includes(busquedaLibro.toLowerCase())
 );
-const agregarLibro = (libro) => {
+const agregarLibro = (recurso) => {
 
-  if (libros.includes(libro)) return;
+  if (
+    recursos.some(
+      item => item.nombre === recurso.nombre
+    )
+  ) return;
 
-  setLibros([
-    ...libros,
-    libro
+  setRecursos([
+    ...recursos,
+    recurso
   ]);
 
   setBusquedaLibro("");
 };
 const eliminarLibro = (index) => {
 
-  setLibros(
-    libros.filter((_, i) => i !== index)
-  );
+ setRecursos(
+  recursos.filter((_, i) => i !== index)
+);
 
 };
 const guardarPrestamo = () => {
 
-  if (
-    !numeroControl ||
-    !nombreAlumno ||
-    libros.length === 0 ||
-    !fechaPrestamo ||
-    !fechaDevolucion
-  ) {
+ if (
+  !numeroControl ||
+  !nombreAlumno ||
+  recursos.length === 0 ||
+  !fechaPrestamo ||
+  !fechaDevolucion
+) {
 
     alert(
       "Completa todos los campos obligatorios"
@@ -78,7 +100,7 @@ const guardarPrestamo = () => {
   const prestamo = {
     numeroControl,
     nombreAlumno,
-    libros,
+    recursos,
     fechaPrestamo,
     fechaDevolucion,
     observaciones
@@ -89,10 +111,7 @@ const guardarPrestamo = () => {
   alert(
     "✅ Préstamo registrado correctamente"
   );
-
-  setNumeroControl("");
-  setNombreAlumno("");
-  setLibros([]);
+  setRecursos([]);
   setFechaPrestamo("");
   setFechaDevolucion("");
   setObservaciones("");
@@ -121,7 +140,7 @@ const alumnosPrueba = {
     </h1>
 
     <p>
-      Registra préstamos de libros para los alumnos.
+      Registra préstamos de libros y materiales.
     </p>
 
   </div>
@@ -140,36 +159,23 @@ const alumnosPrueba = {
 
   <div className="form-grid">
 
-    <div className="form-group">
-      <label>Número de Control</label>
-      <input
-  type="text"
-  value={numeroControl}
-  onChange={(e) => {
-    const numero = e.target.value;
-    setNumeroControl(numero);
-    if (alumnosPrueba[numero]) {
-      setNombreAlumno(
-        alumnosPrueba[numero]
-      );
-    } else {
-      setNombreAlumno("");
-    }
+<div className="form-group">
+  <label>Número de Control</label>
+  <input
+    type="text"
+    value={numeroControl}
+    readOnly
+  />
+</div>
 
-  }}
-/>
-    </div>
-
-    <div className="form-group">
-      <label>Nombre del Alumno</label>
-      <input
-  type="text"
-  value={nombreAlumno}
-  readOnly
-/>
-
-
-    </div>
+<div className="form-group">
+  <label>Nombre del Alumno</label>
+  <input
+    type="text"
+    value={nombreAlumno}
+    readOnly
+  />
+</div>
 
   </div>
 
@@ -181,7 +187,7 @@ const alumnosPrueba = {
 
   <div className="form-group">
 
-<label>Buscar libro</label>
+<label>Buscar libro o material</label>
 
 <div className="search-book">
 
@@ -199,54 +205,78 @@ const alumnosPrueba = {
 </div>
 <div className="books-results">
 
-  {busquedaLibro !== "" &&
+ {resultados.map((recurso, index) => (
 
-    resultados.map((libro, index) => (
+  <div
+    key={index}
+    className="book-result"
+    onClick={() => agregarLibro(recurso)}
+  >
+    <FaBook />
 
-      <div
-  key={index}
-  className="book-result"
-  onClick={() => agregarLibro(libro)}
->
-  <FaBook />{libro}
-</div>
+    <strong>{recurso.nombre}</strong>
 
-    ))
+    <span
+      style={{
+        marginLeft: "10px",
+        color: "#666",
+        fontSize: "13px"
+      }}
+    >
+      ({recurso.tipo})
+    </span>
 
-  }
+  </div>
+
+))}
 
 </div>
 
   </div>
 
   <div className="selected-books">
+  <h4>Recursos seleccionados</h4>
 
-    <h4>Libros seleccionados</h4>
+  <div className="books-list">
 
-    <div className="books-list">
+    {recursos.map((recurso, index) => (
 
-  {libros.map((libro, index) => (
-
-    <div
-      key={index}
-      className="book-tag"
-    >
-      <FaBook /> {libro}
-
-      <span
-        className="book-remove"
-        onClick={() => eliminarLibro(index)}
+      <div
+        key={index}
+        className="book-tag"
       >
-        ✕
-      </span>
 
-    </div>
+        {recurso.tipo === "Libro"
+          ? <FaBook />
+          : <FaBoxOpen />
+        }
 
-  ))}
+        {" "}
+        {recurso.nombre}
+
+        <span
+          style={{
+            marginLeft: "6px",
+            fontSize: "12px",
+            color: "#555"
+          }}
+        >
+          ({recurso.tipo})
+        </span>
+
+        <span
+          className="book-remove"
+          onClick={() => eliminarLibro(index)}
+        >
+          ✕
+        </span>
+
+      </div>
+
+    ))}
 
 </div>
-
-  </div>
+</div>
 
   <div className="form-grid">
 
@@ -284,35 +314,13 @@ const alumnosPrueba = {
 />
     </div>
 
-    <div className="form-group">
-      <label>Fecha de devolución</label>
-      <input
-  type="date"
-  value={fechaDevolucion}
-  onChange={(e) => setFechaDevolucion(e.target.value)}
-/>
-    </div>
+
 
   </div>
 
 </div>
-{/**observaciones */}
-<div className="form-card">
 
-  <h3><FaEdit /> Observaciones</h3>
 
-  <div className="form-group">
-
-   <textarea
-  rows="5"
-  placeholder="Información adicional..."
-  value={observaciones}
-  onChange={(e) => setObservaciones(e.target.value)}
-/>
-
-  </div>
-
-</div>
 {/**Botones */}
 <div className="form-actions">
 
