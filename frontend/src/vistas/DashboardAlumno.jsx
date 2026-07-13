@@ -15,8 +15,29 @@ import {
   FaHome,
   FaBox,
 } from "react-icons/fa";
+import { useState, useEffect } from "react";
 import icono120 from "../assets/icono120.png";
+
 function DashboardAlumno() {
+  const [prestamos, setPrestamos] = useState([]);
+
+  useEffect(() => {
+    const fetchMisPrestamos = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:3000/api/prestamos/mis-prestamos", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setPrestamos(data);
+        }
+      } catch (error) {
+        console.error("Error al obtener mis préstamos", error);
+      }
+    };
+    fetchMisPrestamos();
+  }, []);
 
   return (
 
@@ -159,27 +180,22 @@ function DashboardAlumno() {
       </thead>
 
       <tbody>
-        <tr>
-          <td>Fisica I</td>
-          <td>12/05/2025</td>
-          <td>19/05/2025</td>
-          <td>
-            <span className="status active-status">
-              Activo
-            </span>
-          </td>
-        </tr>
-
-        <tr>
-          <td>Calculadora Científica</td>
-          <td>10/05/2025</td>
-          <td>17/05/2025</td>
-          <td>
-            <span className="status returned-status">
-              Devuelto
-            </span>
-          </td>
-        </tr>
+        {prestamos.length > 0 ? prestamos.map((p, index) => (
+          <tr key={index}>
+            <td>{p.material}</td>
+            <td>{new Date(p.fecha_solicitud).toLocaleDateString("es-ES")}</td>
+            <td>{p.fecha_devolucion_esperada ? new Date(p.fecha_devolucion_esperada).toLocaleDateString("es-ES") : "N/A"}</td>
+            <td>
+              <span className={`status ${p.estado === 'Activo' ? 'active-status' : p.estado === 'Devuelto' ? 'returned-status' : ''}`}>
+                {p.estado}
+              </span>
+            </td>
+          </tr>
+        )) : (
+          <tr>
+            <td colSpan="4" style={{ textAlign: "center", padding: "20px" }}>No tienes préstamos registrados</td>
+          </tr>
+        )}
       </tbody>
 
     </table>

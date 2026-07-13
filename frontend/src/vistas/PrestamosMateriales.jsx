@@ -16,43 +16,39 @@ import {
   FaInfoCircle,
   FaBoxOpen
 } from "react-icons/fa";
-import { useState } from "react";
-
-// Mock Data Inicial
-const solicitudesPrueba = [
-  { 
-    id: 1, 
-    alumno: "Ana Soto", 
-    matricula: "22308001", 
-    material: "Calculadora cientifica", 
-    fechaSolicitud: "2026-06-15", 
-    estado: "Pendiente" 
-  },
-  { 
-    id: 2, 
-    alumno: "María López", 
-    matricula: "22308002", 
-    material: "cable HDMI", 
-    fechaSolicitud: "2026-06-14", 
-    estado: "Aprobada",
-    fechaDevolucion: "2026-06-21",
-    horaDevolucion: "14:00"
-  },
-  { 
-    id: 3, 
-    alumno: "Carlos Ramírez", 
-    matricula: "22308003", 
-    material: "control", 
-    fechaSolicitud: "2026-06-16", 
-    estado: "Rechazada",
-    motivo: "El alumno tiene multas pendientes."
-  },
-
-];
+import { useState, useEffect } from "react";
 
 function PrestamosMateriales() {
-  const [solicitudes, setSolicitudes] = useState(solicitudesPrueba);
+  const [solicitudes, setSolicitudes] = useState([]);
   const [busqueda, setBusqueda] = useState("");
+
+  const cargarSolicitudes = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:3000/api/prestamos/todos", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      
+      const formateadas = (Array.isArray(data) ? data : []).map(p => ({
+        id: p.id_prestamo,
+        alumno: p.alumno || "Desconocido",
+        matricula: p.numero_control || "N/A",
+        material: p.material || "N/A",
+        fechaSolicitud: new Date(p.fecha_solicitud).toLocaleDateString("es-ES"),
+        estado: p.estado,
+        fechaDevolucion: p.fecha_devolucion_esperada ? new Date(p.fecha_devolucion_esperada).toLocaleDateString("es-ES") : null,
+        motivo: p.estado === "Rechazado" ? "Rechazado por el administrador" : ""
+      }));
+      setSolicitudes(formateadas);
+    } catch (error) {
+      console.error("Error cargando solicitudes:", error);
+    }
+  };
+
+  useEffect(() => {
+    cargarSolicitudes();
+  }, []);
   
   // Estados de Modales
   const [modalAutorizar, setModalAutorizar] = useState(false);
@@ -87,40 +83,77 @@ function PrestamosMateriales() {
   };
 
   // Funciones para confirmar acciones
-  const confirmarAutorizacion = (e) => {
+  const confirmarAutorizacion = async (e) => {
     e.preventDefault();
     if (!fechaDevolucion || !horaDevolucion) {
       alert("La fecha y hora de devolución son obligatorias.");
       return;
     }
-    const nuevas = solicitudes.map(s => 
-      s.id === solicitudActiva.id 
-        ? { ...s, estado: "Aprobada", fechaDevolucion, horaDevolucion, observaciones } 
-        : s
-    );
-    setSolicitudes(nuevas);
+    
+    const diffTime = Math.abs(new Date(fechaDevolucion) - new Date());
+    const dias_prestamo = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:3000/api/prestamos/${solicitudActiva.id}/procesar`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ accion: "Aprobar", dias_prestamo })
+      });
+
+      if (res.ok) {
+        alert("Préstamo aprobado con éxito");
+        cargarSolicitudes();
+      } else {
+        const data = await res.json();
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error de red");
+    }
     setModalAutorizar(false);
   };
 
-  const confirmarDenegacion = (e) => {
+  const confirmarDenegacion = async (e) => {
     e.preventDefault();
     if (!motivoRechazo) {
       alert("Debes indicar el motivo del rechazo.");
       return;
     }
-    const nuevas = solicitudes.map(s => 
-      s.id === solicitudActiva.id 
-        ? { ...s, estado: "Rechazada", motivo: motivoRechazo } 
-        : s
-    );
-    setSolicitudes(nuevas);
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:3000/api/prestamos/${solicitudActiva.id}/procesar`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ accion: "Rechazar" })
+      });
+
+      if (res.ok) {
+        alert("Préstamo rechazado con éxito");
+        cargarSolicitudes();
+      } else {
+        const data = await res.json();
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error de red");
+    }
     setModalDenegar(false);
   };
 
   // Estadísticas
   const pendientes = solicitudes.filter(s => s.estado === "Pendiente").length;
-  const aprobadas = solicitudes.filter(s => s.estado === "Aprobada").length;
-  const rechazadas = solicitudes.filter(s => s.estado === "Rechazada").length;
+  const aprobadas = solicitudes.filter(s => s.estado === "Activo" || s.estado === "Aprobada").length;
+  const rechazadas = solicitudes.filter(s => s.estado === "Rechazado" || s.estado === "Rechazada").length;
 
   // Filtrado
   const solicitudesFiltradas = solicitudes.filter(s => 
@@ -136,14 +169,19 @@ function PrestamosMateriales() {
         <FaClock/> {estado}
       </span>
     );
-    if (estado === "Aprobada") return (
+    if (estado === "Activo" || estado === "Aprobada") return (
       <span style={{backgroundColor: "#D1FAE5", color: "#065F46", padding: "6px 12px", borderRadius: "20px", fontWeight: "bold", fontSize: "13px", display: "inline-flex", alignItems: "center", gap: "6px"}}>
         <FaCheckCircle/> {estado}
       </span>
     );
-    if (estado === "Rechazada") return (
+    if (estado === "Rechazado" || estado === "Rechazada") return (
       <span style={{backgroundColor: "#FEE2E2", color: "#991B1B", padding: "6px 12px", borderRadius: "20px", fontWeight: "bold", fontSize: "13px", display: "inline-flex", alignItems: "center", gap: "6px"}}>
         <FaTimesCircle/> {estado}
+      </span>
+    );
+    return (
+      <span style={{backgroundColor: "#E5E7EB", color: "#374151", padding: "6px 12px", borderRadius: "20px", fontWeight: "bold", fontSize: "13px", display: "inline-flex", alignItems: "center", gap: "6px"}}>
+        {estado}
       </span>
     );
   };
@@ -434,7 +472,7 @@ function PrestamosMateriales() {
                 <FaCalendarAlt color="#888" /> <strong>Solicitado el:</strong> {solicitudActiva.fechaSolicitud}
               </p>
 
-              {solicitudActiva.estado === "Aprobada" && (
+              {(solicitudActiva.estado === "Aprobada" || solicitudActiva.estado === "Activo") && (
                 <>
                   <hr style={{ border: "none", borderTop: "1px solid #ddd", margin: "15px 0" }} />
                   <p style={{ margin: "10px 0", color: "#065F46" }}>
@@ -448,7 +486,7 @@ function PrestamosMateriales() {
                 </>
               )}
 
-              {solicitudActiva.estado === "Rechazada" && (
+              {(solicitudActiva.estado === "Rechazada" || solicitudActiva.estado === "Rechazado") && (
                 <>
                   <hr style={{ border: "none", borderTop: "1px solid #ddd", margin: "15px 0" }} />
                   <p style={{ margin: "10px 0", color: "#991B1B" }}>

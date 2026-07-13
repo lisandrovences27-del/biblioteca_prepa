@@ -16,19 +16,66 @@ function PrestamosAlumno() {
   const [numeroControl, setNumeroControl] = useState("");
   const [nombreAlumno, setNombreAlumno] = useState("");
 
-  const usuarioPrueba = {
-    numeroControl: "22308001",
-    nombre: "Juan Pérez"
+  const [recursos, setRecursos] = useState([]);
+
+  const cargarRecursos = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const headers = { Authorization: `Bearer ${token}` };
+
+      const [resLibros, resMateriales] = await Promise.all([
+        fetch("http://localhost:3000/api/libros", { headers }),
+        fetch("http://localhost:3000/api/materiales", { headers })
+      ]);
+
+      const dataLibros = await resLibros.json();
+      const dataMateriales = await resMateriales.json();
+
+      const librosFormateados = (Array.isArray(dataLibros) ? dataLibros : []).map(l => ({
+        id_item: l.id_material || l.id_libro,
+        nombre: l.nombre,
+        tipo: "Libro",
+        autor: l.autor || "Desconocido",
+        categoria: l.subcategoria || "General",
+        existencias: l.stock_disponible,
+        estado: l.stock_disponible > 0 ? "Disponible" : "No Disponible"
+      }));
+
+      const materialesFormateados = (Array.isArray(dataMateriales) ? dataMateriales : []).map(m => ({
+        id_item: m.id_material,
+        nombre: m.nombre,
+        tipo: "Material",
+        categoriaTipo: m.categoria_nombre || "General",
+        cantidad: m.stock_disponible,
+        estado: m.stock_disponible > 0 ? "Disponible" : "No Disponible"
+      }));
+
+      setRecursos([...librosFormateados, ...materialesFormateados]);
+    } catch (error) {
+      console.error("Error cargando recursos:", error);
+    }
   };
 
   useEffect(() => {
-    localStorage.setItem("usuario", JSON.stringify(usuarioPrueba));
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
-
-    if (usuario) {
-      setNumeroControl(usuario.numeroControl);
-      setNombreAlumno(usuario.nombre);
-    }
+    const fetchUserProfile = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const res = await fetch("http://localhost:3000/api/auth/profile", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const userData = await res.json();
+            setNumeroControl(userData.numero_control);
+            setNombreAlumno(userData.nombre_completo);
+          }
+        } catch (error) {
+          console.error("Error al obtener perfil del usuario:", error);
+        }
+      }
+    };
+    fetchUserProfile();
+    cargarRecursos();
   }, []);
 
   const [tabActiva, setTabActiva] = useState("Libros");
@@ -47,33 +94,20 @@ function PrestamosAlumno() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [carrito, setCarrito] = useState([]);
 
-  const recursosPrueba = [
-    { nombre: "Matemáticas I", tipo: "Libro", autor: "Baldor", categoria: "Ciencias Exactas", existencias: 3, estado: "Disponible" },
-    { nombre: "Física General", tipo: "Libro", autor: "Sears Zemansky", categoria: "Ciencias Exactas", existencias: 0, estado: "No Disponible" },
-    { nombre: "Química Básica", tipo: "Libro", autor: "Raymond Chang", categoria: "Ciencias Exactas", existencias: 5, estado: "Disponible" },
-    { nombre: "Biología", tipo: "Libro", autor: "Curtis", categoria: "Ciencias Naturales", existencias: 2, estado: "Disponible" },
-    { nombre: "Historia Universal", tipo: "Libro", autor: "Gombrich", categoria: "Humanidades", existencias: 1, estado: "Disponible" },
-    
-    { nombre: "Proyector EPSON", tipo: "Material", categoriaTipo: "Electrónico", cantidad: 2, estado: "Disponible" },
-    { nombre: "Guillotina", tipo: "Material", categoriaTipo: "Papelería", cantidad: 1, estado: "Disponible" },
-    { nombre: "Calculadora Científica", tipo: "Material", categoriaTipo: "Electrónico", cantidad: 0, estado: "No Disponible" },
-    { nombre: "Cable HDMI", tipo: "Material", categoriaTipo: "Accesorio", cantidad: 10, estado: "Disponible" }
-  ];
-
   // Listas de opciones para filtros
-  const categoriasLibros = [...new Set(recursosPrueba.filter(r => r.tipo === "Libro").map(r => r.categoria))];
-  const autoresLibros = [...new Set(recursosPrueba.filter(r => r.tipo === "Libro").map(r => r.autor))];
-  const tiposMateriales = [...new Set(recursosPrueba.filter(r => r.tipo === "Material").map(r => r.categoriaTipo))];
+  const categoriasLibros = [...new Set(recursos.filter(r => r.tipo === "Libro").map(r => r.categoria))];
+  const autoresLibros = [...new Set(recursos.filter(r => r.tipo === "Libro").map(r => r.autor))];
+  const tiposMateriales = [...new Set(recursos.filter(r => r.tipo === "Material").map(r => r.categoriaTipo))];
 
   // Resultados Filtrados
-  const librosFiltrados = recursosPrueba.filter(r => r.tipo === "Libro" &&
+  const librosFiltrados = recursos.filter(r => r.tipo === "Libro" &&
     r.nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
     (filtroCategoria === "" || r.categoria === filtroCategoria) &&
     (filtroAutor === "" || r.autor === filtroAutor) &&
     (!soloDisponiblesLibros || r.estado === "Disponible")
   );
 
-  const materialesFiltrados = recursosPrueba.filter(r => r.tipo === "Material" &&
+  const materialesFiltrados = recursos.filter(r => r.tipo === "Material" &&
     r.nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
     (filtroTipo === "" || r.categoriaTipo === filtroTipo) &&
     (!soloDisponiblesMateriales || r.estado === "Disponible")
@@ -101,29 +135,49 @@ function PrestamosAlumno() {
     setModalAbierto(false);
   };
 
-  const guardarPrestamo = () => {
+  const guardarPrestamo = async () => {
     if (!numeroControl || !nombreAlumno || carrito.length === 0) {
       alert("Error: Faltan datos del alumno o el carrito está vacío.");
       return;
     }
 
-    const hoy = new Date();
-    const fechaPrestamo = hoy.toISOString().split("T")[0];
-    const fechaDev = new Date(hoy.setDate(hoy.getDate() + 7)).toISOString().split("T")[0];
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("No estás autenticado.");
+      return;
+    }
 
-    const prestamo = {
-      numeroControl,
-      nombreAlumno,
-      recursos: carrito,
-      fechaPrestamo,
-      fechaDevolucion: fechaDev,
-      observaciones: ""
-    };
-
-    console.log("Préstamos registrados:", prestamo);
-    alert("✅ Préstamos solicitados correctamente");
-    setCarrito([]);
-    cerrarModal();
+    try {
+      let exitos = 0;
+      for (const item of carrito) {
+        const response = await fetch("http://localhost:3000/api/prestamos/solicitar", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            id_item: item.id_item,
+            tipo_prestamo: item.tipo
+          })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          exitos++;
+        } else {
+          alert(`Error al solicitar ${item.nombre}: ${data.error}`);
+        }
+      }
+      if (exitos > 0) {
+        alert(`✅ ${exitos} préstamos solicitados correctamente.`);
+      }
+      setCarrito([]);
+      cerrarModal();
+      cargarRecursos();
+    } catch (error) {
+      console.error(error);
+      alert("Error de red al solicitar préstamos.");
+    }
   };
 
   return (
