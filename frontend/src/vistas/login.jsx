@@ -154,29 +154,29 @@ function Login() {
               Administrador
             </button>
 
-            {/* Botón alumno */}
+            {/* Botón alumno/profesor */}
             <button
               className={tipoUsuario === "alumno" ? "active" : ""}
               onClick={() => setTipoUsuario("alumno")}
             >
-              Alumno
+              Alumno / Profesor
             </button>
 
           </div>
 
 
 
-          {/* Mostrar número de control si es alumno */}
+          {/* Mostrar número de control / RFC si es alumno o profesor */}
           {
             tipoUsuario === "alumno" && (
               <>
 
-                <label>Número de Control</label>
+                <label>Número de Control o RFC</label>
 
                 {
                   camposError.numeroControl && (
                     <p className="error-message">
-                      Ingresa tu número de control
+                      Ingresa tu número de control o RFC
                     </p>
                   )
                 }
