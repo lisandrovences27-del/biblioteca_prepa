@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SidebarAlumno from "../componentes/SidebarAlumno";
 import Accesibilidad from "../componentes/Accesibilidad";
 import LogoutButton from "../componentes/LogoutButton";
@@ -9,18 +9,49 @@ import "./Perfil.css";
 function PerfilAlumno() {
   // Simulando datos del usuario
   const [userData, setUserData] = useState({
-    numeroControl: "233070123456",
-    nombreCompleto: "Brenda Valadez",
-    gradoGrupoTurno: "5° A | Matutino",
-    especialidad: "Programación",
-    correo: "brenda.valadez@cetis120.edu.mx",
-    telefono: "443 123 4567",
-    usuario: "brenda.v",
-    rol: "Alumno",
+    numeroControl: "",
+    nombreCompleto: "",
+    gradoGrupoTurno: "Cargando...",
+    especialidad: "",
+    correo: "",
+    telefono: "",
+    usuario: "",
+    rol: "Cargando...",
     estatus: "Activo",
-    fechaRegistro: "15 de agosto de 2024",
-    ultimoAcceso: "12 de julio de 2026, 09:45 a.m."
+    fechaRegistro: "",
+    ultimoAcceso: "Hoy"
   });
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const res = await fetch("http://localhost:3000/api/auth/profile", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUserData(prev => ({
+            ...prev,
+            numeroControl: data.numero_control || "N/A",
+            nombreCompleto: data.nombre_completo || "",
+            gradoGrupoTurno: `${data.grado || ''}° ${data.grupo || ''} | ${data.turno || ''}`,
+            especialidad: data.especialidad || "N/A",
+            correo: data.correo_electronico || "",
+            telefono: data.telefono || "N/A",
+            usuario: data.correo_electronico || "", // Asumimos correo como usuario
+            rol: data.rol_nombre || "Alumno",
+            estatus: data.bloqueado ? "Bloqueado" : "Activo",
+            fechaRegistro: data.fecha_registro ? new Date(data.fecha_registro).toLocaleDateString("es-ES", { year: 'numeric', month: 'long', day: 'numeric' }) : "Desconocida"
+          }));
+        }
+      } catch (error) {
+        console.error("Error al obtener perfil:", error);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   return (
     <div className="dashboard">

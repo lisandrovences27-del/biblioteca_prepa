@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "../componentes/Sidebar";
 import Accesibilidad from "../componentes/Accesibilidad";
 import LogoutButton from "../componentes/LogoutButton";
@@ -10,14 +10,41 @@ function PerfilAdmin() {
   // Simulando datos del usuario obtenidos del token o API
   const [userData, setUserData] = useState({
     nombreCompleto: "",
-    rol: "Administrador Biblioteca",
+    rol: "Cargando...",
     estado: "Activo",
     correo: "",
     telefono: "",
-    fechaNacimiento: "",
+    fechaNacimiento: "No especificada",
     usuario: "",
-    ultimoAcceso: ""
+    ultimoAcceso: "Hoy"
   });
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const res = await fetch("http://localhost:3000/api/auth/profile", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUserData(prev => ({
+            ...prev,
+            nombreCompleto: data.nombre_completo || "",
+            rol: data.rol_nombre || "",
+            estado: data.bloqueado ? "Bloqueado" : "Activo",
+            correo: data.correo_electronico || "",
+            telefono: data.telefono || "",
+            usuario: data.correo_electronico || "" // Asumimos correo como usuario
+          }));
+        }
+      } catch (error) {
+        console.error("Error al obtener perfil:", error);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -27,8 +54,29 @@ function PerfilAdmin() {
     }));
   };
 
-  const guardarCambios = () => {
-    alert("Cambios guardados con éxito.");
+  const guardarCambios = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch("http://localhost:3000/api/auth/profile", {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          nombre_completo: userData.nombreCompleto,
+          telefono: userData.telefono
+        })
+      });
+      if (res.ok) {
+        alert("Cambios guardados con éxito.");
+      } else {
+        alert("Error al guardar los cambios.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error de conexión.");
+    }
   };
 
   return (

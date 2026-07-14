@@ -26,8 +26,10 @@ function Registro() {
   const [errorPassword, setErrorPassword] = useState("");
   const [confirmarPassword, setConfirmarPassword] = useState("");
 
-  // Estado número de control
+  // Estado número de control / RFC
   const [numeroControl, setNumeroControl] = useState("");
+  // Estado para el tipo de usuario a registrar
+  const [esProfesor, setEsProfesor] = useState(false);
  // Estado para guardar campos con error
   const [camposError, setCamposError] = useState({});
 
@@ -58,24 +60,27 @@ const [telefono, setTelefono] = useState("");
     errores.nombreCompleto = true;
   }
 
-  // Grado
-  if (grado === "") {
-    errores.grado = true;
-  }
+  // Validaciones condicionales si no es profesor
+  if (!esProfesor) {
+    // Grado
+    if (grado === "") {
+      errores.grado = true;
+    }
 
-  // Grupo
-  if (grupo === "") {
-    errores.grupo = true;
-  }
+    // Grupo
+    if (grupo === "") {
+      errores.grupo = true;
+    }
 
-  // Turno
-  if (turno === "") {
-    errores.turno = true;
-  }
+    // Turno
+    if (turno === "") {
+      errores.turno = true;
+    }
 
-  // Especialidad
-  if (especialidad === "") {
-    errores.especialidad = true;
+    // Especialidad
+    if (especialidad === "") {
+      errores.especialidad = true;
+    }
   }
 
   // Teléfono
@@ -153,10 +158,10 @@ else {
       body: JSON.stringify({
         numero_control: numeroControl,
         nombre_completo: nombreCompleto,
-        grado: grado,
-        grupo: grupo,
-        turno: turno,
-        especialidad: especialidad,
+        grado: esProfesor ? null : grado,
+        grupo: esProfesor ? null : grupo,
+        turno: esProfesor ? null : turno,
+        especialidad: esProfesor ? null : especialidad,
         telefono: telefono,
         correo_electronico: correo,
         contrasena: password
@@ -220,12 +225,26 @@ else {
 
        
     <>
+      <div className="tabs" style={{marginBottom: "20px"}}>
+        <button
+          className={!esProfesor ? "active" : ""}
+          onClick={() => setEsProfesor(false)}
+        >
+          Alumno
+        </button>
+        <button
+          className={esProfesor ? "active" : ""}
+          onClick={() => setEsProfesor(true)}
+        >
+          Profesor
+        </button>
+      </div>
 
-      <label>Número de Control</label>
+      <label>Número de Control o RFC</label>
       {
         camposError.numeroControl && (
           <p className="error-message">
-            Ingresa tu número de control
+            Ingresa tu número de control o RFC
           </p>
         )
       }
@@ -236,7 +255,7 @@ else {
             ? "input-error"
             : ""
         }
-        placeholder="Ingresa tu número de control"
+        placeholder="Ingresa tu número de control o RFC"
         value={numeroControl}
         onChange={(e) =>
           setNumeroControl(e.target.value)
@@ -272,6 +291,9 @@ else {
     setNombreCompleto(e.target.value)
   }
 />
+{
+  !esProfesor && (
+    <>
 <label>
   Selecciona tu grado, grupo y turno
 </label>
@@ -464,6 +486,9 @@ else {
 
 
 </select>
+    </>
+  )
+}
 {/* Numero de telefono */}
 <label>Número de Teléfono</label>
 
