@@ -80,7 +80,7 @@ function SidebarMateriales() {
               isActive ? "active-menu" : ""
             }
           >
-            <FaUserCircle /> Perfil
+            <FaUserCircle /> Mi Perfil
           </NavLink>
         </li>
 

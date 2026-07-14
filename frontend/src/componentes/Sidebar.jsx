@@ -4,6 +4,7 @@ import {
   FaCog,
   FaChartBar,
   FaClipboardList,
+  FaUserCircle,
 } from "react-icons/fa";
 
 import { NavLink } from "react-router-dom";
@@ -75,15 +76,15 @@ function Sidebar() {
         </li>
 
         <li>
-          <NavLink to="/configuracion"
-          className={({ isActive }) =>
-      isActive ? "active-menu" : ""
-    }
-    
-    >
-            <FaCog /> Configuración
-          </NavLink>
-        </li>
+                 <NavLink
+                   to="/perfil-admin"
+                   className={({ isActive }) =>
+                     isActive ? "active-menu" : ""
+                   }
+                 >
+                   <FaUserCircle /> Mi Perfil
+                 </NavLink>
+               </li>
 
       </ul>
 

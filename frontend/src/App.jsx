@@ -12,6 +12,8 @@ import PrestamosAlumno from "./vistas/PrestamosAlumno";
 import ReportesBiblioteca from "./vistas/ReportesBiblioteca";
 import LibrosAlumno from "./vistas/LibrosAlumno";
 import MaterialesAlumno from "./vistas/MaterialesAlumno";
+import PerfilAdmin from "./vistas/PerfilAdmin";
+import PerfilAlumno from "./vistas/PerfilAlumno";
 
 function App() {
 
@@ -40,6 +42,8 @@ function App() {
       <Route path="/libros-disponibles" element={<LibrosAlumno />}/>
 
       <Route path="/materiales-disponibles" element={<MaterialesAlumno />}/>
+      <Route path="/perfil-admin" element={<PerfilAdmin />}/>
+      <Route path="/mi-perfil" element={<PerfilAlumno />}/>
     </Routes>
     
 
