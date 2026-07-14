@@ -84,12 +84,14 @@ exports.procesarPrestamo = async (req, res) => {
                 [fecha_esperada, id_encargado, id]
             );
 
-            // Reducir stock
+            // Reducir stock (AHORA MANEJADO POR TRIGGER MYSQL trigger_prestamos_stock_update)
+            /*
             if (tipo_prestamo === 'Libro') {
                 await pool.query('UPDATE libros SET stock_disponible = stock_disponible - 1 WHERE id_libro = ?', [prestamo[0].id_libro]);
             } else {
                 await pool.query('UPDATE materiales SET stock_disponible = stock_disponible - 1 WHERE id_material = ?', [prestamo[0].id_material]);
             }
+            */
 
             res.json({ message: 'Préstamo aprobado' });
         } else if (accion === 'Rechazar') {
@@ -133,12 +135,14 @@ exports.registrarDevolucion = async (req, res) => {
             [id]
         );
 
-        // Aumentar stock
+        // Aumentar stock (AHORA MANEJADO POR TRIGGER MYSQL trigger_prestamos_stock_update)
+        /*
         if (tipo_prestamo === 'Libro') {
             await pool.query('UPDATE libros SET stock_disponible = stock_disponible + 1 WHERE id_libro = ?', [prestamo[0].id_libro]);
         } else {
             await pool.query('UPDATE materiales SET stock_disponible = stock_disponible + 1 WHERE id_material = ?', [prestamo[0].id_material]);
         }
+        */
 
         res.json({ message: 'Devolución registrada exitosamente' });
     } catch (error) {
