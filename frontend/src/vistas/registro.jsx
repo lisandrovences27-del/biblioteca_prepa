@@ -442,7 +442,6 @@ else {
       : ""
   }
   value={especialidad}
-
   onChange={(e) =>
     setEspecialidad(e.target.value)
   }
@@ -450,41 +449,66 @@ else {
   <option value="">
     Selecciona una especialidad
   </option>
+
+  <option value="Administración de recursos humanos">
+    Administración de recursos humanos
+  </option>
+
+  <option value="Ciberseguridad">
+    Ciberseguridad
+  </option>
+
+  <option value="Comercio internacional y aduanas">
+    Comercio internacional y aduanas
+  </option>
+
+  <option value="Contabilidad">
+    Contabilidad
+  </option>
+
+  <option value="Cosmetología">
+    Cosmetología
+  </option>
+
+  <option value="e-Commerce">
+    e-Commerce
+  </option>
+
+  <option value="Electrónica">
+    Electrónica
+  </option>
+
+  <option value="Gestión e innovación turística">
+    Gestión e innovación turística
+  </option>
+
+  <option value="Inteligencia artificial">
+    Inteligencia artificial
+  </option>
+
   <option value="Programación">
     Programación
   </option>
-  <option value="puericultura">
+
+  <option value="Puericultura">
     Puericultura
   </option>
-  <option value="hospedaje">
-    Servicios de Hospedaje
-  </option>
-  <option value="administracionRH">
-    Administración de recursos humanos
-  </option>
-  <option value="ciberseguridad">
-    Ciberseguridad
-  </option>
-  <option value="contabilidad">
-    Contabilidad
-  </option>
-  <option value="electronica">
-    Electronica
-  </option>
-  <option value="secretariadoEB">
-    Secretariado Ejecutivo Bilingüe
-  </option>
-  <option value="soporteTegnologias">
-    Soporte y gestión de tegnologias informáticas 
-  </option>
-  <option value="soporteComputo">
-    soporte y mantenimiento de equipo de computo
-  </option>
-<option value="ventas">
-    Ventas 
+
+  <option value="Servicios de hospedaje">
+    Servicios de hospedaje
   </option>
 
+  <option value="Soporte y gestión de tecnologías informáticas">
+    Soporte y gestión de tecnologías informáticas
+  </option>
 
+  <option value="Soporte y mantenimiento de equipo de cómputo">
+    Soporte y mantenimiento de equipo de cómputo
+  </option>
+
+  <option value="Ventas">
+    Ventas
+  </option>
 </select>
     </>
   )

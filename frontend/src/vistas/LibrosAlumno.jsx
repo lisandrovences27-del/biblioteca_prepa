@@ -42,20 +42,52 @@ function LibrosAlumno() {
       libro.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
       libro.codigo_interno?.toLowerCase().includes(busqueda.toLowerCase())
   );
-  const handleSolicitar = (libro) => {
-  console.log("Solicitud de préstamo:", libro);
-};
+  const handleSolicitar = async (libro) => {
+    try {
+      const res = await fetch("/api/prestamos/solicitar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({
+          id_item: libro.id_libro || libro.id_material,
+          tipo_prestamo: "Libro",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(`Error: ${data.error}`);
+        return;
+      }
+
+      alert("Préstamo solicitado exitosamente.");
+      cargarLibros(); // Recargar para actualizar el stock si es necesario
+    } catch (error) {
+      console.error(error);
+      alert("Error al solicitar el préstamo.");
+    }
+  };
 
   return (
-    <div className="dashboard">
+    <div className="dashboard" style={{ position: "relative" }}>
       <SidebarAlumno />
 
       <main className="main-content">
-        <h1>Libros Disponibles</h1>
+        <div className="topbar">
+          <div>
+            <h1>Libros Disponibles</h1>
+            <p>Busca y solicita libros de la biblioteca.</p>
+          </div>
+          <div className="topbar-right" style={{ display: "flex", alignItems: "center" }}>
+            {/* Opcional: <LogoutButton /> si lo importas */}
+          </div>
+        </div>
 
         {/* BUSCADOR */}
         <div className="table-section">
-
           <div className="table-header">
             <h2>Libros de la Biblioteca</h2>
 
@@ -87,7 +119,7 @@ function LibrosAlumno() {
             ) : librosFiltrados.length === 0 ? (
               <p>No se encontraron libros</p>
             ) : (
-              <table className="table-section">
+              <table>
                 <thead>
                   <tr>
                     <th>#</th>
