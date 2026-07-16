@@ -7,6 +7,7 @@ exports.registerAlumno = async (req, res) => {
     try {
         const {
             nombre_completo,
+            genero,
             numero_control,
             curp,
             correo_electronico,
@@ -40,9 +41,9 @@ exports.registerAlumno = async (req, res) => {
 
         // id_rol 3 es para Alumno según database.sql
         const [result] = await pool.query(
-            `INSERT INTO usuarios (nombre_completo, numero_control, curp, correo_electronico, contrasena, id_rol, grado, grupo, turno, especialidad, telefono)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [nombre_completo, numero_control, curp || null, correo_electronico, hashedPassword, 3, grado || null, grupo || null, turno || null, especialidad || null, telefono || null]
+            `INSERT INTO usuarios (nombre_completo, genero, numero_control, curp, correo_electronico, contrasena, id_rol, grado, grupo, turno, especialidad, telefono)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [nombre_completo, genero || null, numero_control, curp || null, correo_electronico, hashedPassword, 3, grado || null, grupo || null, turno || null, especialidad || null, telefono || null]
         );
 
         res.status(201).json({ message: 'Alumno registrado exitosamente', id_usuario: result.insertId });

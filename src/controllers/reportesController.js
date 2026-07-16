@@ -106,10 +106,54 @@ exports.getReporteById = async (req, res) => {
             reporte.datos = JSON.parse(reporte.datos);
         }
 
-        res.json(reporte);
+        res.json({ message: 'Reporte guardado exitosamente' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al obtener el reporte' });
+        res.status(500).json({ error: 'Error al guardar reporte' });
+    }
+};
+
+exports.getReporteDinamicoBiblioteca = async (req, res) => {
+    try {
+        const { mes } = req.query;
+        if (!mes) return res.status(400).json({ error: 'Mes requerido' });
+
+        const year = mes.split('-')[0];
+        const month = mes.split('-')[1];
+
+        const [results] = await pool.query(`
+            SELECT 
+                COALESCE(l.nombre, m.nombre, 'Desconocido') AS nombre_articulo,
+                u.id_rol,
+                u.genero,
+                COUNT(*) as cantidad
+            FROM prestamos p
+            JOIN usuarios u ON p.id_usuario = u.id_usuario
+            LEFT JOIN libros l ON p.id_libro = l.id_libro
+            LEFT JOIN materiales m ON p.id_material = m.id_material
+            WHERE p.estado = 'Aprobado' 
+              AND YEAR(p.fecha_solicitud) = ? 
+              AND MONTH(p.fecha_solicitud) = ?
+            GROUP BY nombre_articulo, u.id_rol, u.genero
+        `, [year, month]);
+
+        const formatData = {};
+
+        results.forEach(row => {
+            const { nombre_articulo, id_rol, genero, cantidad } = row;
+
+            if (!formatData[nombre_articulo]) {
+                formatData[nombre_articulo] = { ah: 0, am: 0, dh: 0, dm: 0, nombre: nombre_articulo };
+            }
+
+            const key = (id_rol === 3 ? 'a' : 'd') + (genero === 'H' ? 'h' : 'm');
+            formatData[nombre_articulo][key] += cantidad;
+        });
+
+        res.json(Object.values(formatData));
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al generar reporte dinámico' });
     }
 };
 

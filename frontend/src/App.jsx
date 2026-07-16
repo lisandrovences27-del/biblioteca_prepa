@@ -15,6 +15,7 @@ import MaterialesAlumno from "./vistas/MaterialesAlumno";
 import PerfilAdmin from "./vistas/PerfilAdmin";
 import PerfilAlumno from "./vistas/PerfilAlumno";
 import PerfilAdmin2 from "./vistas/PerfilAdmin2";
+import ReportesMateriales from "./vistas/ReportesMateriales";
 
 function App() {
 
@@ -23,31 +24,32 @@ function App() {
     <Routes>
 
       {/* Ruta login */}
-      <Route path="/" element={<Login />}/>
+      <Route path="/" element={<Login />} />
       {/* Ruta dashboard admin */}
-     <Route path="/dashboard-admin" element={<DashboardAdmin1 />}/>
-     <Route path="/dashboard-admin2"element={<DashboardAdmin2 />}/>
-     <Route path="/materiales" element={<Materiales />} />
+      <Route path="/dashboard-admin" element={<DashboardAdmin1 />} />
+      <Route path="/dashboard-admin2" element={<DashboardAdmin2 />} />
+      <Route path="/materiales" element={<Materiales />} />
 
       {/* Ruta registro */}
       <Route path="/registro" element={<Registro />} />
       {/* Ruta libros */}
-      <Route path="/libros" element={<Libros />}/>
+      <Route path="/libros" element={<Libros />} />
       {/* Ruta prestamos */}
-      <Route path="/prestamos" element={<Prestamos />}/>
-      <Route path="/prestamos-materiales" element={<PrestamosMateriales />}/>
-      <Route path="/dashboard-alumno" element={<DashboardAlumno />}/>
+      <Route path="/prestamos" element={<Prestamos />} />
+      <Route path="/prestamos-materiales" element={<PrestamosMateriales />} />
+      <Route path="/dashboard-alumno" element={<DashboardAlumno />} />
       <Route
-        path="/mis-prestamos" element={<PrestamosAlumno />}/>
-      <Route path="/reportes" element={<ReportesBiblioteca />}/>
-      <Route path="/libros-disponibles" element={<LibrosAlumno />}/>
+        path="/mis-prestamos" element={<PrestamosAlumno />} />
+      <Route path="/reportes" element={<ReportesBiblioteca />} />
+      <Route path="/reportes-materiales" element={<ReportesMateriales />} />
+      <Route path="/libros-disponibles" element={<LibrosAlumno />} />
 
-      <Route path="/materiales-disponibles" element={<MaterialesAlumno />}/>
-      <Route path="/perfil-admin" element={<PerfilAdmin />}/>
-      <Route path="/mi-perfil" element={<PerfilAlumno />}/>
-      <Route path="/perfil-admin2" element={<PerfilAdmin2/>}/>
+      <Route path="/materiales-disponibles" element={<MaterialesAlumno />} />
+      <Route path="/perfil-admin" element={<PerfilAdmin />} />
+      <Route path="/mi-perfil" element={<PerfilAlumno />} />
+      <Route path="/perfil-admin2" element={<PerfilAdmin2 />} />
     </Routes>
-    
+
 
   );
 }

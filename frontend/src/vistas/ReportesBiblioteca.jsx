@@ -3,25 +3,49 @@ import "../App.css";
 import Sidebar from "../componentes/Sidebar";
 import LogoutButton from "../componentes/LogoutButton";
 import { FaCalendarAlt, FaSave, FaEraser, FaFilePdf } from "react-icons/fa";
+import { useEffect } from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 function ReportesBiblioteca() {
-  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
 
-  const initialData = {
-    librosPrestados: { ah: 45, am: 60, dh: 8, dm: 12 },
-    prestamosDomicilio: { ah: 30, am: 40, dh: 6, dm: 9 },
-    ajedrez: { ah: 10, am: 8, dh: 2, dm: 3 },
-    computadoras: { ah: 15, am: 12, dh: 3, dm: 4 },
-    clasesImpartidas: { ah: 20, am: 25, dh: 7, dm: 10 }
+  const initialManualData = {
+    ajedrez: { ah: 0, am: 0, dh: 0, dm: 0 },
+    clasesImpartidas: { ah: 0, am: 0, dh: 0, dm: 0 }
   };
 
-  const [reportData, setReportData] = useState(initialData);
+  const [manualData, setManualData] = useState(initialManualData);
+  const [dynamicData, setDynamicData] = useState([]);
+
+  useEffect(() => {
+    const fetchDynamicData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`http://localhost:3000/api/reportes/dinamico?mes=${selectedMonth}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setDynamicData(data);
+        }
+      } catch (error) {
+        console.error("Error fetching dynamic report", error);
+      }
+    };
+    if (selectedMonth) {
+      fetchDynamicData();
+    }
+  }, [selectedMonth]);
 
   const handleInputChange = (actividad, campo, valor) => {
     // Si esta vacio, lo manejamos como string vacio para que no marque error,
     // pero al sumar lo tratamos como 0.
     const val = valor === "" ? "" : parseInt(valor) || 0;
-    setReportData((prev) => ({
+    setManualData((prev) => ({
       ...prev,
       [actividad]: {
         ...prev[actividad],
@@ -31,13 +55,7 @@ function ReportesBiblioteca() {
   };
 
   const handleLimpiar = () => {
-    setReportData({
-      librosPrestados: { ah: 0, am: 0, dh: 0, dm: 0 },
-      prestamosDomicilio: { ah: 0, am: 0, dh: 0, dm: 0 },
-      ajedrez: { ah: 0, am: 0, dh: 0, dm: 0 },
-      computadoras: { ah: 0, am: 0, dh: 0, dm: 0 },
-      clasesImpartidas: { ah: 0, am: 0, dh: 0, dm: 0 }
-    });
+    setManualData(initialManualData);
   };
 
   const handleGuardar = () => {
@@ -45,7 +63,17 @@ function ReportesBiblioteca() {
   };
 
   const handlePDF = () => {
-    alert("Generando PDF...");
+    const doc = new jsPDF();
+    doc.text(`Reporte Mensual de Biblioteca - ${selectedMonth}`, 14, 20);
+    
+    doc.autoTable({
+      html: '#tabla-reporte-biblio',
+      startY: 30,
+      theme: 'grid',
+      headStyles: { fillColor: [105, 28, 50] } // Color #691C32
+    });
+
+    doc.save(`Reporte_Biblioteca_${selectedMonth}.pdf`);
   };
 
   // Helper para convertir el valor del estado a numero seguro
@@ -58,22 +86,34 @@ function ReportesBiblioteca() {
     return getSafeNum(act.ah) + getSafeNum(act.am) + getSafeNum(act.dh) + getSafeNum(act.dm);
   };
 
-  // Totales de columnas
-  const totalAh = Object.values(reportData).reduce((acc, curr) => acc + getSafeNum(curr.ah), 0);
-  const totalAm = Object.values(reportData).reduce((acc, curr) => acc + getSafeNum(curr.am), 0);
-  const totalDh = Object.values(reportData).reduce((acc, curr) => acc + getSafeNum(curr.dh), 0);
-  const totalDm = Object.values(reportData).reduce((acc, curr) => acc + getSafeNum(curr.dm), 0);
+  // Totales de columnas dinámicas + manuales
+  const totalAh = 
+    dynamicData.reduce((acc, curr) => acc + getSafeNum(curr.ah), 0) + 
+    Object.values(manualData).reduce((acc, curr) => acc + getSafeNum(curr.ah), 0);
+  
+  const totalAm = 
+    dynamicData.reduce((acc, curr) => acc + getSafeNum(curr.am), 0) + 
+    Object.values(manualData).reduce((acc, curr) => acc + getSafeNum(curr.am), 0);
+    
+  const totalDh = 
+    dynamicData.reduce((acc, curr) => acc + getSafeNum(curr.dh), 0) + 
+    Object.values(manualData).reduce((acc, curr) => acc + getSafeNum(curr.dh), 0);
+    
+  const totalDm = 
+    dynamicData.reduce((acc, curr) => acc + getSafeNum(curr.dm), 0) + 
+    Object.values(manualData).reduce((acc, curr) => acc + getSafeNum(curr.dm), 0);
+    
   const totalGeneral = totalAh + totalAm + totalDh + totalDm;
 
-  const RowItem = ({ label, objectKey }) => {
+  const RowItemManual = ({ label, objectKey }) => {
     return (
       <tr>
-        <td style={styles.tdLabel}>{label}</td>
+        <td style={styles.tdLabel}>{label}<br/><span style={{fontSize:'10px', color:'#888'}}>(Manual)</span></td>
         <td style={styles.tdInput}>
           <input 
             type="number" 
             style={styles.input} 
-            value={reportData[objectKey].ah} 
+            value={manualData[objectKey].ah} 
             onChange={(e) => handleInputChange(objectKey, 'ah', e.target.value)} 
           />
         </td>
@@ -81,7 +121,7 @@ function ReportesBiblioteca() {
           <input 
             type="number" 
             style={styles.input} 
-            value={reportData[objectKey].am} 
+            value={manualData[objectKey].am} 
             onChange={(e) => handleInputChange(objectKey, 'am', e.target.value)} 
           />
         </td>
@@ -89,7 +129,7 @@ function ReportesBiblioteca() {
           <input 
             type="number" 
             style={styles.input} 
-            value={reportData[objectKey].dh} 
+            value={manualData[objectKey].dh} 
             onChange={(e) => handleInputChange(objectKey, 'dh', e.target.value)} 
           />
         </td>
@@ -97,11 +137,24 @@ function ReportesBiblioteca() {
           <input 
             type="number" 
             style={styles.input} 
-            value={reportData[objectKey].dm} 
+            value={manualData[objectKey].dm} 
             onChange={(e) => handleInputChange(objectKey, 'dm', e.target.value)} 
           />
         </td>
-        <td style={styles.tdTotalRow}>{getTotalFila(reportData[objectKey])}</td>
+        <td style={styles.tdTotalRow}>{getTotalFila(manualData[objectKey])}</td>
+      </tr>
+    );
+  };
+
+  const RowItemDinamico = ({ item }) => {
+    return (
+      <tr>
+        <td style={styles.tdLabel}>{item.nombre}<br/><span style={{fontSize:'10px', color:'#888'}}>(Automático)</span></td>
+        <td style={styles.tdInput}>{item.ah}</td>
+        <td style={styles.tdInput}>{item.am}</td>
+        <td style={styles.tdInput}>{item.dh}</td>
+        <td style={styles.tdInput}>{item.dm}</td>
+        <td style={styles.tdTotalRow}>{getTotalFila(item)}</td>
       </tr>
     );
   };
@@ -143,13 +196,13 @@ function ReportesBiblioteca() {
 
         {/* Tabla */}
         <div style={{ backgroundColor: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
+          <table id="tabla-reporte-biblio" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
             <thead>
               <tr>
-                <th rowSpan="2" style={{ ...styles.thMain, width: '20%' }}>Actividad</th>
+                <th rowSpan="2" style={{ ...styles.thMain, width: '20%' }}>Actividad / Artículo</th>
                 <th colSpan="2" style={styles.thMain}>Alumnos</th>
                 <th colSpan="2" style={styles.thMain}>Docentes</th>
-                <th rowSpan="2" style={styles.thMain}>Total<br/><span style={{fontSize: '12px', fontWeight: 'normal'}}>(Automático)</span></th>
+                <th rowSpan="2" style={styles.thMain}>Total<br/><span style={{fontSize: '12px', fontWeight: 'normal'}}>(Suma)</span></th>
               </tr>
               <tr>
                 <th style={styles.thSub}>Hombres ♂</th>
@@ -159,11 +212,15 @@ function ReportesBiblioteca() {
               </tr>
             </thead>
             <tbody>
-              <RowItem label="Libros prestados" objectKey="librosPrestados" />
-              <RowItem label="Préstamos a domicilio" objectKey="prestamosDomicilio" />
-              <RowItem label="Ajedrez" objectKey="ajedrez" />
-              <RowItem label="Computadoras" objectKey="computadoras" />
-              <RowItem label="Clases impartidas" objectKey="clasesImpartidas" />
+              {dynamicData.length > 0 ? dynamicData.map((item, index) => (
+                <RowItemDinamico key={index} item={item} />
+              )) : (
+                <tr>
+                  <td colSpan="6" style={{ padding: '20px' }}>No hay préstamos registrados este mes.</td>
+                </tr>
+              )}
+              <RowItemManual label="Ajedrez" objectKey="ajedrez" />
+              <RowItemManual label="Clases impartidas" objectKey="clasesImpartidas" />
             </tbody>
             <tfoot>
               <tr style={{ backgroundColor: '#fdfbf7' }}>
