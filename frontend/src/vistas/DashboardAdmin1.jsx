@@ -3,14 +3,13 @@ import Sidebar from "../componentes/Sidebar";
 import Accesibilidad from "../componentes/Accesibilidad";
 import {
   FaBook,
-  FaBoxOpen,
-  FaUserGraduate,
+  FaUsers,
   FaCheckCircle,
-  FaBell,
-  FaCog,
-  FaChartBar,
   FaClipboardList,
-  FaExclamationTriangle,
+  FaBox,
+  FaBoxOpen,
+  FaBell,
+  FaUserGraduate,
 } from "react-icons/fa";
 import LogoutButton from "../componentes/LogoutButton";
 import { useNavigate } from "react-router-dom";
@@ -341,19 +340,19 @@ function DashboardAdmin1() {
     <ul>
 
       <li>
-        📚 Nuevo libro agregado
+        <FaBook/> Nuevo libro agregado
       </li>
 
       <li>
-        👨‍🎓 Alumno registrado
+        <FaUserGraduate /> Alumno registrado
       </li>
 
       <li>
-        📦 Préstamo realizado
+        <FaBox /> Préstamo realizado
       </li>
 
       <li>
-        ✅ Libro devuelto
+        <FaCheckCircle /> Libro devuelto
       </li>
 
     </ul>

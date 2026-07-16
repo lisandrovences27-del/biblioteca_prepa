@@ -510,6 +510,7 @@ else {
     Ventas
   </option>
 </select>
+
     </>
   )
 }
