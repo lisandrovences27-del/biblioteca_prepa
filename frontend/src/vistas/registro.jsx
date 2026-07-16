@@ -41,8 +41,8 @@ const [grupo, setGrupo] = useState("");
 const [turno, setTurno] = useState("");
 
 const [especialidad, setEspecialidad] = useState("");
-
 const [telefono, setTelefono] = useState("");
+const [genero, setGenero] = useState("");
 
 
   // Función para validar Registro
@@ -55,9 +55,14 @@ const [telefono, setTelefono] = useState("");
     errores.numeroControl = true;
   }
 
-  // Nombre
+  // Nombre completo
   if (nombreCompleto.trim() === "") {
     errores.nombreCompleto = true;
+  }
+
+  // Genero
+  if (genero === "") {
+    errores.genero = true;
   }
 
   // Validaciones condicionales si no es profesor
@@ -150,14 +155,13 @@ else {
 
   // Todo correcto, conectar con API
   try {
-    const res = await fetch("/api/auth/register", {
+    const response = await fetch("http://localhost:3000/api/auth/register", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         numero_control: numeroControl,
         nombre_completo: nombreCompleto,
+        genero: genero,
         grado: esProfesor ? null : grado,
         grupo: esProfesor ? null : grupo,
         turno: esProfesor ? null : turno,
@@ -165,11 +169,11 @@ else {
         telefono: telefono,
         correo_electronico: correo,
         contrasena: password
-      })
+      }),
     });
 
-    const data = await res.json();
-    if (!res.ok) {
+    const data = await response.json();
+    if (!response.ok) {
       alert("Error: " + data.error);
     } else {
       alert("Registro exitoso. Ahora puedes iniciar sesión.");
@@ -291,6 +295,40 @@ else {
     setNombreCompleto(e.target.value)
   }
 />
+
+<label>Género</label>
+{
+  camposError.genero && (
+    <p className="error-message">
+      Selecciona tu sexo
+    </p>
+  )
+}
+<div style={{ display: "flex", gap: "20px", marginBottom: "15px", marginTop: "5px" }}>
+  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: "normal" }}>
+    <input 
+      type="radio" 
+      name="genero" 
+      value="M" 
+      checked={genero === "M"} 
+      onChange={(e) => setGenero(e.target.value)} 
+      style={{ width: "18px", height: "18px", cursor: "pointer" }}
+    />
+    Mujer
+  </label>
+  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: "normal" }}>
+    <input 
+      type="radio" 
+      name="genero" 
+      value="H" 
+      checked={genero === "H"} 
+      onChange={(e) => setGenero(e.target.value)} 
+      style={{ width: "18px", height: "18px", cursor: "pointer" }}
+    />
+    Hombre
+  </label>
+</div>
+
 {
   !esProfesor && (
     <>

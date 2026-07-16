@@ -22,6 +22,8 @@ function PerfilAlumno() {
     ultimoAcceso: "Hoy"
   });
 
+  const [prestamos, setPrestamos] = useState([]);
+
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem("token");
@@ -50,7 +52,25 @@ function PerfilAlumno() {
         console.error("Error al obtener perfil:", error);
       }
     };
+
+    const fetchPrestamos = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const res = await fetch("http://localhost:3000/api/prestamos/mis-prestamos", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPrestamos(data);
+        }
+      } catch (error) {
+        console.error("Error al obtener préstamos:", error);
+      }
+    };
+
     fetchProfile();
+    fetchPrestamos();
   }, []);
 
   return (
@@ -216,40 +236,49 @@ function PerfilAlumno() {
             </div>
             
             <div className="timeline">
-              <div className="timeline-item">
-                <div className="timeline-icon green">
-                  <FaBook />
-                </div>
-                <div className="timeline-content">
-                  <h4>Préstamo realizado</h4>
-                  <p>Libro: El principito</p>
-                  <span className="date">08 julio 2026</span>
-                </div>
-              </div>
+              {prestamos.length > 0 ? (
+                prestamos.map((prestamo) => {
+                  let icon = <FaBoxOpen />;
+                  let iconColor = "yellow";
+                  let titulo = "Préstamo solicitado";
+                  
+                  if (prestamo.tipo_prestamo === "Libro") {
+                    icon = <FaBook />;
+                  }
 
-              <div className="timeline-item">
-                <div className="timeline-icon yellow">
-                  <FaBoxOpen />
-                </div>
-                <div className="timeline-content">
-                  <h4>Préstamo solicitado</h4>
-                  <p>Material: Proyector Epson</p>
-                  <span className="date">05 julio 2026</span>
-                </div>
-              </div>
+                  if (prestamo.estado === "Activo") {
+                    iconColor = "green";
+                    titulo = "Préstamo activo";
+                  } else if (prestamo.estado === "Devuelto") {
+                    iconColor = "blue";
+                    titulo = "Préstamo devuelto";
+                  } else if (prestamo.estado === "Rechazado") {
+                    iconColor = "red";
+                    titulo = "Préstamo rechazado";
+                  }
 
-              <div className="timeline-item">
-                <div className="timeline-icon blue">
-                  <FaCheckCircle />
-                </div>
-                <div className="timeline-content">
-                  <h4>Préstamo devuelto</h4>
-                  <p>Libro: Cien años de soledad</p>
-                  <span className="date">28 junio 2026</span>
-                </div>
-              </div>
+                  const fecha = new Date(prestamo.fecha_solicitud).toLocaleDateString("es-ES", {
+                    year: "numeric", month: "long", day: "numeric"
+                  });
+
+                  return (
+                    <div className="timeline-item" key={prestamo.id_prestamo}>
+                      <div className={`timeline-icon ${iconColor}`}>
+                        {icon}
+                      </div>
+                      <div className="timeline-content">
+                        <h4>{titulo}</h4>
+                        <p>{prestamo.tipo_prestamo}: {prestamo.material}</p>
+                        <span className="date">{fecha}</span>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <p style={{ color: "#666", padding: "10px" }}>No tienes actividad reciente.</p>
+              )}
               
-              <div style={{display: 'flex', alignItems: 'center'}}>
+              <div style={{display: 'flex', alignItems: 'center', marginTop: "15px"}}>
                 <button className="btn-outline">
                   Ver mis préstamos →
                 </button>
