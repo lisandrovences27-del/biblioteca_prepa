@@ -2757,3 +2757,488 @@ html.alto-contraste input {
   color: #ff0 !important;
   border: 2px solid #ff0 !important;
 }
+
+/* Correcciones para mejorar el contraste en Modo Oscuro (Tablas) */
+html.tema-oscuro .dashboard {
+  background: transparent !important;
+}
+
+/* Tablas generales, reportes y listas en tema oscuro */
+html.tema-oscuro table,
+html.tema-oscuro .inv-table,
+html.tema-oscuro .reportes-table,
+html.tema-oscuro .table-container,
+html.tema-oscuro .table-section table {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+}
+
+/* Encabezados y celdas */
+html.tema-oscuro table th,
+html.tema-oscuro .inv-table th {
+  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid #444 !important;
+}
+html.tema-oscuro table td,
+html.tema-oscuro .inv-table td {
+  background-color: transparent !important;
+  color: #e0e0e0 !important;
+  border-bottom: 1px solid #333 !important;
+}
+
+/* Filas, filas pares/impares y hover */
+html.tema-oscuro table tr,
+html.tema-oscuro .inv-table tr {
+  background-color: #1e1e1e !important;
+}
+html.tema-oscuro table tr:nth-child(even),
+html.tema-oscuro .inv-table tr:nth-child(even) {
+  background-color: #242424 !important;
+    border:none;
+
+    border-radius:8px;
+
+    padding:8px 12px;
+
+    transition:.3s;
+
+}
+
+.botones-texto button:hover{
+
+    background:#a52a2a;
+
+}
+
+.tema-btn{
+
+    background:#f5f5f5;
+
+    color:#333;
+
+    border:1px solid #ddd;
+
+}
+
+.tema-btn:hover{
+
+    background:#e8e8e8;
+
+}
+
+.panel-accesibilidad hr{
+
+    border:none;
+
+    border-top:1px solid rgba(255,255,255,.2);
+
+    margin:15px 0;
+
+}
+@keyframes aparecer{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* =====================================================
+   ACCESIBILIDAD
+===================================================== */
+
+/* Tamaños de texto */
+html.texto-pequeno {
+  font-size: 14px !important;
+}
+html.texto-normal {
+  font-size: 16px !important;
+}
+html.texto-grande {
+  font-size: 18px !important;
+}
+html.texto-muy-grande {
+  font-size: 20px !important;
+}
+
+/* Modo oscuro */
+html.tema-oscuro body {
+  background: #121212 !important;
+  color: #e0e0e0 !important;
+}
+html.tema-oscuro .dashboard {
+  background: #121212 !important;
+}
+html.tema-oscuro .dashboard-card,
+html.tema-oscuro .table-section,
+html.tema-oscuro .chart-box,
+html.tema-oscuro .activity-box,
+html.tema-oscuro .panel-accesibilidad {
+  background: #1e1e1e !important;
+  color: #ffffff !important;
+  border: 1px solid #333 !important;
+  box-shadow: 0px 6px 18px rgba(0,0,0,0.4) !important;
+}
+html.tema-oscuro .table-header h2,
+html.tema-oscuro .dashboard-card h2,
+html.tema-oscuro .card-title,
+html.tema-oscuro .chart-box h2,
+html.tema-oscuro .activity-box h2 {
+  color: #ffffff !important;
+}
+html.tema-oscuro table th {
+  background: #2a2a2a !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid #444 !important;
+}
+html.tema-oscuro table td {
+  color: #e0e0e0 !important;
+  border-bottom: 1px solid #333 !important;
+}
+html.tema-oscuro .view-btn {
+  background: #333 !important;
+  color: #fff !important;
+  border: 1px solid #555 !important;
+}
+html.tema-oscuro .btn-accesibilidad {
+  background: #333 !important;
+  color: #fff !important;
+  border: 1px solid #555 !important;
+}
+html.tema-oscuro input {
+  background: #333 !important;
+  color: #fff !important;
+  border: 1px solid #666 !important;
+}
+
+/* Alto contraste */
+html.alto-contraste body {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+html.alto-contraste .dashboard,
+html.alto-contraste .sidebar,
+html.alto-contraste .topbar,
+html.alto-contraste .panel-accesibilidad {
+  background: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+html.alto-contraste a,
+html.alto-contraste button {
+  color: #000000 !important;
+  background: #ffff00 !important;
+  border: 2px solid #ffffff !important;
+  font-weight: bold !important;
+}
+html.alto-contraste hr {
+  border-color: #ffff00 !important;
+}
+html.alto-contraste input {
+  background: #000 !important;
+  color: #ff0 !important;
+  border: 2px solid #ff0 !important;
+}
+
+/* Correcciones para mejorar el contraste en Modo Oscuro (Tablas) */
+html.tema-oscuro .dashboard {
+  background: transparent !important;
+}
+
+/* Tablas generales, reportes y listas en tema oscuro */
+html.tema-oscuro table,
+html.tema-oscuro .inv-table,
+html.tema-oscuro .reportes-table,
+html.tema-oscuro .table-container,
+html.tema-oscuro .table-section table {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+}
+
+/* Encabezados y celdas */
+html.tema-oscuro table th,
+html.tema-oscuro .inv-table th {
+  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid #444 !important;
+}
+html.tema-oscuro table td,
+html.tema-oscuro .inv-table td {
+  background-color: transparent !important;
+  color: #e0e0e0 !important;
+  border-bottom: 1px solid #333 !important;
+}
+
+/* Filas, filas pares/impares y hover */
+html.tema-oscuro table tr,
+html.tema-oscuro .inv-table tr {
+  background-color: #1e1e1e !important;
+}
+html.tema-oscuro table tr:nth-child(even),
+html.tema-oscuro .inv-table tr:nth-child(even) {
+  background-color: #242424 !important;
+}
+html.tema-oscuro table tr:hover,
+html.tema-oscuro .inv-table tr:hover,
+html.tema-oscuro table tr:hover td,
+html.tema-oscuro .inv-table tr:hover td {
+  background-color: #3a3a3a !important;
+  color: #ffffff !important;
+}
+
+/* =====================================================
+   RESPONSIVIDAD GLOBAL (MEDIA QUERIES)
+===================================================== */
+
+@media (max-width: 1024px) {
+  .dashboard {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .sidebar .logo-subtitle {
+    display: none;
+  }
+  .sidebar .menu {
+    flex-direction: row;
+    margin-top: 0;
+    gap: 15px;
+    overflow-x: auto;
+    width: 100%;
+  }
+  .sidebar .menu li {
+    margin-bottom: 0;
+  }
+  .sidebar .menu li span {
+    display: none; /* Ocultar texto, mostrar iconos */
+  }
+  .sidebar .menu li a {
+    padding: 10px;
+    justify-content: center;
+  }
+  .sidebar .menu li a svg {
+    margin-right: 0;
+    font-size: 20px;
+  }
+  .user-box {
+    margin-top: 0;
+    margin-left: auto;
+  }
+  .main-content {
+    width: 100%;
+    padding: 20px;
+  }
+  .topbar {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  .topbar-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .dashboard-grid, .sanciones-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid, .sanciones-grid {
+    grid-template-columns: 1fr;
+  }
+  /* Tablas responsivas con scroll horizontal */
+  .table-container, .inv-table-container, .table-section {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    display: block;
+  }
+  .inv-table, table, .reportes-table {
+    width: 100%;
+    min-width: 700px; /* Forzar scroll si es muy pequeña */
+  }
+  .topbar h1, .inv-header h1 {
+    font-size: 22px;
+  }
+  .topbar p, .inv-header p {
+    font-size: 14px;
+  }
+  .inv-modal-content {
+    width: 95%;
+    margin: 5% auto;
+    padding: 15px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    padding: 10px;
+  }
+  .menu {
+    gap: 5px;
+  }
+  .topbar {
+    padding: 15px;
+  }
+  .main-content {
+    padding: 15px 10px;
+  }
+  .dashboard-card, .chart-box, .activity-box {
+    padding: 15px;
+  }
+}
+
+
+/* FIX: BOTON SOLICITAR Y TABLAS */
+.inv-btn-solicitar {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #0A1F44, #1a3a7a);
+  color: white;
+}
+.inv-btn-solicitar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 31, 68, 0.35);
+}
+.inv-btn-solicitar:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.table-section table, .table-container table, .inv-table-container table {
+  width: 100% !important;
+  border-collapse: collapse;
+}
+.table-section th, .table-section td, .table-container th, .table-container td {
+  text-align: left;
+}
+
+
+
+/* FIX: TEMA OSCURO PARA NOTIFICACIONES Y PERFIL */
+html.tema-oscuro .activity-box li {
+  background: #2a2a2a !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #333 !important;
+}
+html.tema-oscuro .activity-box li:hover {
+  background: #3a3a3a !important;
+}
+html.tema-oscuro .perfil-card {
+  background: #1e1e1e !important;
+  border: 1px solid #333 !important;
+  color: #e0e0e0 !important;
+}
+html.tema-oscuro .perfil-card-header {
+  border-bottom: 1px solid #333 !important;
+}
+html.tema-oscuro .perfil-card-header h3 {
+  color: #fff !important;
+}
+html.tema-oscuro .perfil-form-label {
+  color: #ccc !important;
+}
+html.tema-oscuro .perfil-form-icon {
+  background-color: #2a2a2a !important;
+  color: #e57373 !important;
+}
+html.tema-oscuro .perfil-form-input {
+  background-color: #333 !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+}
+
+
+
+/* FIX: ESTADO VACIO SANCIONES */
+html.tema-oscuro .inv-empty-state {
+  background: #1e1e1e !important;
+  border-color: #333 !important;
+  color: #e0e0e0 !important;
+}
+html.tema-oscuro .inv-empty-state h3 {
+  color: #fff !important;
+}
+html.tema-oscuro .inv-empty-state p {
+  color: #aaa !important;
+}
+
+
+
+/* FIX: TARJETAS SANCIONES Y MODALES TEMA OSCURO */
+html.tema-oscuro .sancion-card {
+  background: #1e1e1e !important;
+  border-color: #333 !important;
+}
+html.tema-oscuro .sancion-alumno {
+  color: #fff !important;
+}
+html.tema-oscuro .sancion-control {
+  background: #333 !important;
+  color: #ccc !important;
+}
+html.tema-oscuro .sancion-motivo {
+  background: #3d2429 !important;
+  color: #e0e0e0 !important;
+}
+html.tema-oscuro .sancion-motivo.resuelto {
+  background: #1f3d29 !important;
+  color: #e0e0e0 !important;
+}
+html.tema-oscuro .sancion-footer, html.tema-oscuro .sancion-fecha, html.tema-oscuro .sanciones-tabs {
+  color: #aaa !important;
+  border-color: #333 !important;
+}
+html.tema-oscuro .sancion-tab {
+  color: #aaa !important;
+}
+html.tema-oscuro .sancion-tab:hover {
+  background: #333 !important;
+  color: #fff !important;
+}
+html.tema-oscuro .inv-modal {
+  background: #1e1e1e !important;
+  border: 1px solid #333 !important;
+  color: #e0e0e0 !important;
+}
+html.tema-oscuro .inv-modal-header h2 {
+  color: #fff !important;
+}
+html.tema-oscuro .inv-modal-footer, html.tema-oscuro .inv-modal-header {
+  border-color: #333 !important;
+}
+

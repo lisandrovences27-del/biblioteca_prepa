@@ -13,7 +13,8 @@ import {
   FaUserGraduate,
   FaIdCard,
   FaCalendarAlt,
-  FaInfoCircle
+  FaInfoCircle,
+  FaBan
 } from "react-icons/fa";
 import { useState, useEffect } from "react";
 
@@ -31,6 +32,7 @@ function Prestamos() {
       
       const formateadas = (Array.isArray(data) ? data : []).map(p => ({
         id: p.id_prestamo,
+        id_alumno: p.id_alumno,
         alumno: p.alumno || "Desconocido",
         matricula: p.numero_control || "N/A",
         libro: p.material || "N/A",
@@ -53,13 +55,19 @@ function Prestamos() {
   const [modalAutorizar, setModalAutorizar] = useState(false);
   const [modalDenegar, setModalDenegar] = useState(false);
   const [modalDetalles, setModalDetalles] = useState(false);
+  const [modalSancion, setModalSancion] = useState(false);
+  const [modalDevolucion, setModalDevolucion] = useState(false);
   const [solicitudActiva, setSolicitudActiva] = useState(null);
+  const [modalMensaje, setModalMensaje] = useState({ show: false, text: '', type: 'success' });
+  const mostrarMensaje = (text, type = 'success') => setModalMensaje({ show: true, text, type });
+
 
   // Estados de Formularios
   const [fechaDevolucion, setFechaDevolucion] = useState("");
   const [horaDevolucion, setHoraDevolucion] = useState("");
   const [observaciones, setObservaciones] = useState("");
   const [motivoRechazo, setMotivoRechazo] = useState("");
+  const [motivoSancion, setMotivoSancion] = useState("");
 
   // Funciones para abrir modales
   const abrirAutorizar = (solicitud) => {
@@ -81,11 +89,77 @@ function Prestamos() {
     setModalDetalles(true);
   };
 
+  const abrirSancion = (solicitud) => {
+    setSolicitudActiva(solicitud);
+    setMotivoSancion("");
+    setModalSancion(true);
+  };
+
+  const confirmarDevolucion = (solicitud) => {
+    setSolicitudActiva(solicitud);
+    setModalDevolucion(true);
+  };
+
+  const ejecutarDevolucion = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:3000/api/prestamos/${solicitudActiva.id}/devolver`, {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        mostrarMensaje("Devolución registrada con éxito.", 'success');
+        setModalDevolucion(false);
+        cargarSolicitudes();
+      } else {
+        const data = await res.json();
+        mostrarMensaje(`Error: ${data.error}`, 'error');
+      }
+    } catch (error) {
+      console.error(error);
+      mostrarMensaje("Error de conexión", 'error');
+    }
+  };
+
+  const confirmarSancion = async (e) => {
+    e.preventDefault();
+    if (!motivoSancion) {
+      mostrarMensaje("Debes indicar un motivo de sanción.", 'error');
+      return;
+    }
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:3000/api/sanciones`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          id_alumno: solicitudActiva.id_alumno,
+          id_prestamo: solicitudActiva.id,
+          motivo: motivoSancion
+        })
+      });
+      if (res.ok) {
+        mostrarMensaje("Sanción aplicada exitosamente. El alumno ha sido bloqueado.", 'success');
+        setModalSancion(false);
+        cargarSolicitudes();
+      } else {
+        const data = await res.json();
+        mostrarMensaje(`Error: ${data.error}`, 'error');
+      }
+    } catch (error) {
+      console.error(error);
+      mostrarMensaje("Error de conexión", 'error');
+    }
+  };
+
   // Funciones para confirmar acciones
   const confirmarAutorizacion = async (e) => {
     e.preventDefault();
     if (!fechaDevolucion || !horaDevolucion) {
-      alert("La fecha y hora de devolución son obligatorias.");
+      mostrarMensaje("La fecha y hora de devolución son obligatorias.", 'success');
       return;
     }
     
@@ -104,15 +178,15 @@ function Prestamos() {
       });
 
       if (res.ok) {
-        alert("Préstamo aprobado con éxito");
+        mostrarMensaje("Préstamo aprobado con éxito", 'success');
         cargarSolicitudes();
       } else {
         const data = await res.json();
-        alert(`Error: ${data.error}`);
+        mostrarMensaje(`Error: ${data.error}`, 'error');
       }
     } catch (error) {
       console.error(error);
-      alert("Error de red");
+      mostrarMensaje("Error de red", 'error');
     }
     setModalAutorizar(false);
   };
@@ -120,7 +194,7 @@ function Prestamos() {
   const confirmarDenegacion = async (e) => {
     e.preventDefault();
     if (!motivoRechazo) {
-      alert("Debes indicar el motivo del rechazo.");
+      mostrarMensaje("Debes indicar el motivo del rechazo.", 'error');
       return;
     }
 
@@ -136,15 +210,15 @@ function Prestamos() {
       });
 
       if (res.ok) {
-        alert("Préstamo rechazado con éxito");
+        mostrarMensaje("Préstamo rechazado con éxito", 'success');
         cargarSolicitudes();
       } else {
         const data = await res.json();
-        alert(`Error: ${data.error}`);
+        mostrarMensaje(`Error: ${data.error}`, 'error');
       }
     } catch (error) {
       console.error(error);
-      alert("Error de red");
+      mostrarMensaje("Error de red", 'error');
     }
     setModalDenegar(false);
   };
@@ -348,6 +422,24 @@ function Prestamos() {
                             </button>
                           </>
                         )}
+                        {solicitud.estado === "Activo" && (
+                          <>
+                            <button 
+                              style={{ ...btnActionStyle, backgroundColor: "#10b981" }} 
+                              title="Confirmar Devolución"
+                              onClick={() => confirmarDevolucion(solicitud)}
+                            >
+                              <FaCheck />
+                            </button>
+                            <button 
+                              style={{ ...btnActionStyle, backgroundColor: "#991B1B" }} 
+                              title="Sancionar Alumno"
+                              onClick={() => abrirSancion(solicitud)}
+                            >
+                              <FaBan />
+                            </button>
+                          </>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -499,6 +591,64 @@ function Prestamos() {
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
               <button onClick={() => setModalDetalles(false)} style={{ padding: "12px 25px", borderRadius: "10px", border: "none", backgroundColor: "#0A1F44", color: "white", cursor: "pointer", fontWeight: "bold" }}>
                 Cerrar Panel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* ===== MODAL: SANCIONAR ===== */}
+      {modalSancion && solicitudActiva && (
+        <div style={modalOverlayStyle} onClick={() => setModalSancion(false)}>
+          <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
+            <h2 style={{ color: "#991B1B", marginTop: 0, display: "flex", alignItems: "center", gap: "10px" }}>
+              <FaBan color="#991B1B" /> Sancionar Alumno
+            </h2>
+            <p style={{ color: "#666", marginBottom: "15px" }}>
+              Se registrará una sanción para <strong>{solicitudActiva.alumno}</strong> por no devolver <strong>{solicitudActiva.libro}</strong>. El alumno quedará bloqueado automáticamente.
+            </p>
+            
+            <form onSubmit={confirmarSancion}>
+              <label style={{ fontWeight: "bold", color: "#333", display: "block" }}>Motivo de la Sanción *</label>
+              <textarea 
+                rows="4" 
+                required 
+                style={{...formInputStyle, resize: "vertical", borderColor: "#fca5a5"}} 
+                placeholder="Ej. Daño al material, retraso de entrega de más de 3 días, pérdida del libro..."
+                value={motivoSancion}
+                onChange={(e) => setMotivoSancion(e.target.value)}
+              ></textarea>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "10px" }}>
+                <button type="button" onClick={() => setModalSancion(false)} style={{ padding: "12px 20px", borderRadius: "10px", border: "none", backgroundColor: "#e5e7eb", color: "#374151", cursor: "pointer", fontWeight: "bold" }}>
+                  Cancelar
+                </button>
+                <button type="submit" style={{ padding: "12px 20px", borderRadius: "10px", border: "none", backgroundColor: "#991B1B", color: "white", cursor: "pointer", fontWeight: "bold" }}>
+                  Aplicar Sanción
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ===== MODAL: CONFIRMAR DEVOLUCIÓN ===== */}
+      {modalDevolucion && solicitudActiva && (
+        <div style={modalOverlayStyle} onClick={() => setModalDevolucion(false)}>
+          <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
+            <h2 style={{ color: "#065F46", marginTop: 0, display: "flex", alignItems: "center", gap: "10px" }}>
+              <FaCheckCircle color="#065F46" /> Confirmar Devolución
+            </h2>
+            <p style={{ color: "#666", marginBottom: "15px", fontSize: "16px" }}>
+              ¿Estás seguro que deseas marcar <strong>{solicitudActiva.libro}</strong> como devuelto por <strong>{solicitudActiva.alumno}</strong>?
+            </p>
+            
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
+              <button onClick={() => setModalDevolucion(false)} style={{ padding: "12px 20px", borderRadius: "10px", border: "none", backgroundColor: "#e5e7eb", color: "#374151", cursor: "pointer", fontWeight: "bold" }}>
+                Cancelar
+              </button>
+              <button onClick={ejecutarDevolucion} style={{ padding: "12px 20px", borderRadius: "10px", border: "none", backgroundColor: "#065F46", color: "white", cursor: "pointer", fontWeight: "bold" }}>
+                Sí, confirmar devolución
               </button>
             </div>
           </div>

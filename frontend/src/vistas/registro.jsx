@@ -9,11 +9,13 @@ import fondo from "../assets/fondoo.png";
 
 // Importamos React
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 
 // Importamos iconos
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function Registro() {
+  const navigate = useNavigate();
 
   // Estado para mostrar u ocultar contraseña
   const [mostrarPassword, setMostrarPassword] = useState(false);
@@ -177,7 +179,7 @@ else {
       alert("Error: " + data.error);
     } else {
       alert("Registro exitoso. Ahora puedes iniciar sesión.");
-      window.location.href = "/";
+      navigate("/");
     }
   } catch (err) {
     console.error(err);
@@ -695,9 +697,9 @@ else {
           </button>
           <p className="register-link">
             ¿Ya tienes cuenta?
-            <a href="/">
+            <Link to="/">
               Inicia sesión
-            </a>
+            </Link>
          </p>
 
         </div>

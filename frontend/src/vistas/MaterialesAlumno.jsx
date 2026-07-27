@@ -1,11 +1,12 @@
 import SidebarAlumno from "../componentes/SidebarAlumno";
 import { useState, useEffect } from "react";
-import { FaSearch, FaTimes, FaBoxOpen } from "react-icons/fa";
+import { FaSearch, FaTimes, FaBoxOpen, FaBan } from "react-icons/fa";
 
 function MaterialesAlumno() {
   const [materiales, setMateriales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
+  const [modalSancionado, setModalSancionado] = useState(false);
 
   const getToken = () => localStorage.getItem("token");
 
@@ -60,7 +61,11 @@ function MaterialesAlumno() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(`Error: ${data.error}`);
+        if (data.error && data.error.toLowerCase().includes("bloqueada")) {
+          setModalSancionado(true);
+        } else {
+          alert(`Error: ${data.error}`);
+        }
         return;
       }
 
@@ -113,14 +118,14 @@ function MaterialesAlumno() {
           </div>
 
           {/* TABLA */}
-          <div >
+          <div className="table-container">
 
             {loading ? (
               <p>Cargando materiales...</p>
             ) : materialesFiltrados.length === 0 ? (
               <p>No se encontraron materiales</p>
             ) : (
-              <table className="table-section">
+              <table>
                 <thead>
                   <tr>
                     <th>#</th>
@@ -166,7 +171,7 @@ function MaterialesAlumno() {
                         </td>
                         <td>
                         <button
-                          className="inv-btn-editar"
+                          className="inv-btn-solicitar"
                           disabled={material.stock_disponible === 0}
                           onClick={() => handleSolicitar(material)}
                         >
@@ -183,6 +188,31 @@ function MaterialesAlumno() {
           </div>
         </div>
       </main>
+      {modalSancionado && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(11, 23, 66, 0.7)", backdropFilter: "blur(5px)",
+          display: "flex", justifyContent: "center", alignItems: "center", zIndex: 9999
+        }} onClick={() => setModalSancionado(false)}>
+          <div style={{
+            backgroundColor: "white", borderRadius: "20px", padding: "30px",
+            width: "90%", maxWidth: "450px", boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+            textAlign: "center"
+          }} onClick={(e) => e.stopPropagation()}>
+            <FaBan color="#991B1B" size={50} style={{ marginBottom: "15px" }} />
+            <h2 style={{ color: "#991B1B", marginTop: 0, fontSize: "24px" }}>
+              Préstamo Denegado
+            </h2>
+            <p style={{ color: "#444", fontSize: "16px", lineHeight: "1.5", marginBottom: "25px" }}>
+              Lo sentimos, has sido sancionado. Si quieres volver a solicitar préstamos preséntate con las encargadas del área de biblioteca.
+            </p>
+            <button onClick={() => setModalSancionado(false)} style={{ padding: "12px 25px", borderRadius: "10px", border: "none", backgroundColor: "#0A1F44", color: "white", cursor: "pointer", fontWeight: "bold", fontSize: "16px" }}>
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

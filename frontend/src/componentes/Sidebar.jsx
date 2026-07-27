@@ -5,6 +5,7 @@ import {
   FaChartBar,
   FaClipboardList,
   FaUserCircle,
+  FaBan,
 } from "react-icons/fa";
 
 import { NavLink } from "react-router-dom";
@@ -72,6 +73,16 @@ function Sidebar() {
     }
     >
             <FaChartBar /> Reportes
+          </NavLink>
+        </li>
+
+        <li>
+          <NavLink to="/sanciones"
+          className={({ isActive }) =>
+      isActive ? "active-menu" : ""
+    }
+    >
+            <FaBan /> Sanciones
           </NavLink>
         </li>
 

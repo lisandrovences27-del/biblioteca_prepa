@@ -115,11 +115,19 @@ exports.getReporteById = async (req, res) => {
 
 exports.getReporteDinamicoBiblioteca = async (req, res) => {
     try {
-        const { mes } = req.query;
+        const { mes, tipo } = req.query;
         if (!mes) return res.status(400).json({ error: 'Mes requerido' });
 
         const year = mes.split('-')[0];
         const month = mes.split('-')[1];
+        
+        let tipoFilter = "";
+        let queryParams = [year, month];
+        
+        if (tipo) {
+            tipoFilter = " AND p.tipo_prestamo = ?";
+            queryParams.push(tipo);
+        }
 
         const [results] = await pool.query(`
             SELECT 
@@ -128,14 +136,15 @@ exports.getReporteDinamicoBiblioteca = async (req, res) => {
                 u.genero,
                 COUNT(*) as cantidad
             FROM prestamos p
-            JOIN usuarios u ON p.id_usuario = u.id_usuario
+            JOIN usuarios u ON p.id_alumno = u.id_usuario
             LEFT JOIN libros l ON p.id_libro = l.id_libro
             LEFT JOIN materiales m ON p.id_material = m.id_material
-            WHERE p.estado = 'Aprobado' 
+            WHERE p.estado IN ('Activo', 'Devuelto') 
               AND YEAR(p.fecha_solicitud) = ? 
               AND MONTH(p.fecha_solicitud) = ?
+              ${tipoFilter}
             GROUP BY nombre_articulo, u.id_rol, u.genero
-        `, [year, month]);
+        `, queryParams);
 
         const formatData = {};
 

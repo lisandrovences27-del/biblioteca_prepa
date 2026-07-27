@@ -9,11 +9,13 @@ import fondo from "../assets/fondoo.png";
 
 // Importamos React
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 
 // Importamos iconos
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function Login() {
+  const navigate = useNavigate();
 
   // Estado para mostrar u ocultar contraseña
   const [mostrarPassword, setMostrarPassword] = useState(false);
@@ -85,11 +87,11 @@ function Login() {
           
           // Redirigir según el rol del usuario (3 = Alumno, 1 = Bibliotecaria, 2 = Encargada)
           if (data.user.id_rol === 3) {
-            window.location.href = "/dashboard-alumno";
+            navigate("/dashboard-alumno");
           } else if (data.user.id_rol === 2) {
-            window.location.href = "/dashboard-admin2";
+            navigate("/dashboard-admin2");
           } else {
-            window.location.href = "/dashboard-admin";
+            navigate("/dashboard-admin");
           }
         } else {
           setErrorBackend(data.error || "Error al iniciar sesión");
@@ -309,9 +311,9 @@ function Login() {
           </button>
           <p className="register-link">
             ¿No tienes cuenta?
-            <a href="/registro">
+            <Link to="/registro">
               Crear cuenta
-            </a>
+            </Link>
           </p>
 
         </div>

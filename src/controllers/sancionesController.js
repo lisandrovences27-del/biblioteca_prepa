@@ -21,7 +21,10 @@ exports.createSancion = async (req, res) => {
             [id_alumno, id_prestamo || null, motivo, 'Activa', id_bibliotecaria]
         );
 
-        res.status(201).json({ message: 'Sanción aplicada', id_sancion: result.insertId });
+        // Bloquear automáticamente al alumno
+        await pool.query('UPDATE usuarios SET bloqueado = TRUE WHERE id_usuario = ?', [id_alumno]);
+
+        res.status(201).json({ message: 'Sanción aplicada y alumno bloqueado', id_sancion: result.insertId });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al crear la sanción' });
@@ -87,13 +90,25 @@ exports.getMisSanciones = async (req, res) => {
 exports.resolverSancion = async (req, res) => {
     try {
         const { id } = req.params;
+        
+        // Obtener el alumno de esta sanción
+        const [sancion] = await pool.query('SELECT id_alumno FROM sanciones WHERE id_sancion = ?', [id]);
+        if (sancion.length === 0) return res.status(404).json({ error: 'Sanción no encontrada' });
+        
+        const id_alumno = sancion[0].id_alumno;
+
         const [result] = await pool.query(
             'UPDATE sanciones SET estado = ?, fecha_resolucion = CURRENT_TIMESTAMP WHERE id_sancion = ?',
             ['Resuelta', id]
         );
 
-        if (result.affectedRows === 0) return res.status(404).json({ error: 'Sanción no encontrada' });
-        res.json({ message: 'Sanción marcada como resuelta' });
+        // Desbloquear al alumno si no tiene otras sanciones activas
+        const [activas] = await pool.query('SELECT id_sancion FROM sanciones WHERE id_alumno = ? AND estado = "Activa"', [id_alumno]);
+        if (activas.length === 0) {
+             await pool.query('UPDATE usuarios SET bloqueado = FALSE WHERE id_usuario = ?', [id_alumno]);
+        }
+
+        res.json({ message: 'Sanción marcada como resuelta y alumno evaluado para desbloqueo' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al resolver la sanción' });

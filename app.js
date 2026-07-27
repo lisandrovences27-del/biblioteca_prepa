@@ -9,6 +9,7 @@ const librosRoutes = require('./src/routes/libros');
 const materialesRoutes = require('./src/routes/materiales');
 const prestamosRoutes = require('./src/routes/prestamos');
 const sancionesRoutes = require('./src/routes/sanciones');
+const reportesRoutes = require('./src/routes/reportes');
 
 // Middleware
 app.use(cors());
@@ -20,6 +21,7 @@ app.use('/api/libros', librosRoutes);
 app.use('/api/materiales', materialesRoutes);
 app.use('/api/prestamos', prestamosRoutes);
 app.use('/api/sanciones', sancionesRoutes);
+app.use('/api/reportes', reportesRoutes);
 
 const path = require('path');
 

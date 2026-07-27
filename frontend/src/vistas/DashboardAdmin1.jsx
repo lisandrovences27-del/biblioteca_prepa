@@ -137,9 +137,6 @@ function DashboardAdmin1() {
           {stats.libros}
         </h2>
 
-        <span className="card-info">
-          +8 este mes ↑
-        </span>
 
       </div>
 
@@ -162,9 +159,6 @@ function DashboardAdmin1() {
         <h2>
           {stats.activos}
         </h2>
-        <span className="card-info">
-          +5 este mes ↑
-        </span>
       </div>
     </div>
   </div>
@@ -189,10 +183,6 @@ function DashboardAdmin1() {
         <h2>
           {stats.alumnos}
         </h2>
-
-        <span className="card-info">
-          +12 este mes ↑
-        </span>
 
       </div>
 
@@ -220,10 +210,6 @@ function DashboardAdmin1() {
         <h2>
           {stats.devueltos}
         </h2>
-
-        <span className="card-info">
-          +20 este mes ↑
-        </span>
 
       </div>
 

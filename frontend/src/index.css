@@ -52,6 +52,16 @@
 
 body {
   margin: 0;
+  background-image: url('./assets/fondoo.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  transition: background-image 0.3s ease;
+}
+
+html.tema-oscuro body {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('./assets/fondoo.png') !important;
 }
 #root {
   width: 100%;

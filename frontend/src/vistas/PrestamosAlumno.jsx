@@ -82,7 +82,7 @@ function PrestamosAlumno() {
             ) : prestamosFiltrados.length === 0 ? (
               <p style={{ padding: "20px" }}>No se encontraron préstamos.</p>
             ) : (
-              <table className="table-section" style={{ width: "100%" }}>
+              <table style={{ width: "100%" }}>
                 <thead>
                   <tr>
                     <th>Fecha Solicitud</th>

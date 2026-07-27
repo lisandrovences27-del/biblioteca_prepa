@@ -77,16 +77,6 @@ function SidebarAlumno() {
           </NavLink>
         </li>
 
-        <li>
-          <NavLink
-            to="/historial"
-            className={({ isActive }) =>
-              isActive ? "active-menu" : ""
-            }
-          >
-            <FaHistory /> Historial
-          </NavLink>
-        </li>
 
         <li>
           <NavLink
