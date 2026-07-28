@@ -213,23 +213,17 @@ function DashboardAlumno() {
     <h2> Notificaciones </h2>
 
     <ul>
-
-      <li>
-        <FaBook></FaBook> Tu solicitud de Física I fue aprobada
-      </li>
-
-      <li>
-        📦 Solicitaste una Calculadora Científica
-      </li>
-
-      <li>
-        ⏰ Tienes un préstamo próximo a vencer
-      </li>
-
-      <li>
-         ✅ Devolución registrada correctamente
-      </li>
-
+      {prestamos.slice(0, 4).map((p, i) => (
+        <li key={i}>
+          {p.estado === 'Pendiente' && <><FaBell /> Solicitaste: {p.material}</>}
+          {p.estado === 'Activo' && <><FaBook /> Préstamo aprobado: {p.material}</>}
+          {p.estado === 'Devuelto' && <><FaCheckCircle /> Devolviste: {p.material}</>}
+          {p.estado === 'Rechazado' && <><FaBoxOpen /> Solicitud rechazada: {p.material}</>}
+        </li>
+      ))}
+      {prestamos.length === 0 && (
+        <li>No tienes notificaciones</li>
+      )}
     </ul>
 
   </div>

@@ -1,5 +1,16 @@
 const pool = require('../../config/db');
 
+// Obtener todas las categoras de materiales (para el dropdown)
+exports.getCategorias = async (req, res) => {
+    try {
+        const [categorias] = await pool.query('SELECT * FROM categorias_material WHERE id_categoria != 1 ORDER BY nombre ASC');
+        res.json(categorias);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener las categorías' });
+    }
+};
+
 // Obtener todos los materiales (No libros, categoría != 1) con nombre de categoría
 exports.getMateriales = async (req, res) => {
     try {

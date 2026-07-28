@@ -68,7 +68,7 @@ function Login() {
     setErrorBackend("");
 
     // Llamada al backend
-    fetch("/api/auth/login", {
+    fetch("http://localhost:3000/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

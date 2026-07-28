@@ -324,23 +324,18 @@ function DashboardAdmin2() {
             </h2>
 
             <ul>
-
-              <li>
-                <FaBook /> Nuevo libro agregado
-              </li>
-
-              <li>
-                <FaUserGraduate /> Alumno registrado
-              </li>
-
-              <li>
-                <FaBox /> Préstamo realizado
-              </li>
-
-              <li>
-                <FaCheckCircle /> Libro devuelto
-              </li>
-
+              {prestamos.slice(0, 4).map((p, i) => (
+                <li key={i}>
+                  {p.estado === 'Pendiente' && <><FaBell /> Solicitud de {p.material}</>}
+                  {p.estado === 'Activo' && <><FaBook /> Préstamo entregado: {p.material}</>}
+                  {p.estado === 'Devuelto' && <><FaCheckCircle /> Devolución de {p.material}</>}
+                  {p.estado === 'Rechazado' && <><FaBoxOpen /> Solicitud rechazada: {p.material}</>}
+                  {' '}por {p.alumno}
+                </li>
+              ))}
+              {prestamos.length === 0 && (
+                <li>No hay actividad reciente</li>
+              )}
             </ul>
 
           </div>

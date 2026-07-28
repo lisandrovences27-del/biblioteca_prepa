@@ -5,7 +5,7 @@ import LogoutButton from "../componentes/LogoutButton";
 import { FaCalendarAlt, FaSave, FaEraser, FaFilePdf } from "react-icons/fa";
 import { useEffect } from "react";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 function ReportesMateriales() {
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -65,16 +65,57 @@ function ReportesMateriales() {
 
   const handlePDF = () => {
     const doc = new jsPDF();
-    doc.text(`Reporte Mensual de Biblioteca - ${selectedMonth}`, 14, 20);
+    doc.text(`Reporte Mensual de Materiales - ${selectedMonth}`, 14, 20);
     
-    doc.autoTable({
-      html: '#tabla-reporte-biblio',
+    // Preparar los datos manualmente para asegurar que los valores de los inputs se exporten
+    const head = [[
+      'Actividad / Artículo',
+      'Hombres (A)', 'Mujeres (A)', 
+      'Hombres (D)', 'Mujeres (D)', 
+      'Total'
+    ]];
+
+    const body = dynamicData.map(item => [
+      `${item.nombre} (Automático)`,
+      item.ah, item.am, item.dh, item.dm,
+      getTotalFila(item)
+    ]);
+    
+    // Agregar datos manuales
+    body.push([
+      'Ajedrez (Manual)',
+      manualData.ajedrez.ah, manualData.ajedrez.am, manualData.ajedrez.dh, manualData.ajedrez.dm,
+      getTotalFila(manualData.ajedrez)
+    ]);
+    body.push([
+      'Computadoras (Manual)',
+      manualData.computadoras.ah, manualData.computadoras.am, manualData.computadoras.dh, manualData.computadoras.dm,
+      getTotalFila(manualData.computadoras)
+    ]);
+    body.push([
+      'Clases impartidas (Manual)',
+      manualData.clasesImpartidas.ah, manualData.clasesImpartidas.am, manualData.clasesImpartidas.dh, manualData.clasesImpartidas.dm,
+      getTotalFila(manualData.clasesImpartidas)
+    ]);
+
+    // Agregar fila de totales
+    const foot = [[
+      'TOTAL GENERAL',
+      totalAh, totalAm, totalDh, totalDm,
+      totalGeneral
+    ]];
+
+    autoTable(doc, {
+      head: head,
+      body: body,
+      foot: foot,
       startY: 30,
       theme: 'grid',
-      headStyles: { fillColor: [105, 28, 50] } // Color #691C32
+      headStyles: { fillColor: [105, 28, 50] }, // Color #691C32
+      footStyles: { fillColor: [253, 251, 247], textColor: [105, 28, 50], fontStyle: 'bold' }
     });
 
-    doc.save(`Reporte_Biblioteca_${selectedMonth}.pdf`);
+    doc.save(`Reporte_Materiales_${selectedMonth}.pdf`);
   };
 
   // Helper para convertir el valor del estado a numero seguro

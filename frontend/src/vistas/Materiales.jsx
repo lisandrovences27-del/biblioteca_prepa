@@ -15,6 +15,8 @@ import {
 
 function Materiales() {
   const [materiales, setMateriales] = useState([]);
+  const [categoriasLista, setCategoriasLista] = useState([]);
+  const [isNewCategory, setIsNewCategory] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const [busqueda, setBusqueda] = useState("");
@@ -59,14 +61,27 @@ function Materiales() {
     setError("No se pudieron cargar los materiales.");
 
   } finally {
-
     setLoading(false);
+  }
+};
 
+const cargarCategorias = async () => {
+  try {
+    const res = await fetch("http://localhost:3000/api/materiales/categorias", {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setCategoriasLista(data);
+    }
+  } catch (err) {
+    console.error("Error al cargar categorías", err);
   }
 };
 
   useEffect(() => {
     cargarMateriales();
+    cargarCategorias();
   }, []);
 
   // Limpiar mensajes después de 4 segundos
@@ -100,6 +115,7 @@ const materialesFiltrados = materiales.filter(
       imagen: "",
       categoria_nombre: "",
     });
+    setIsNewCategory(false);
     setModalAbierto(true);
   };
 
@@ -117,9 +133,8 @@ const abrirModalEditar=(material)=>{
         codigo_interno:material.codigo_interno || "",
         imagen:material.imagen || "",
         categoria_nombre: material.categoria_nombre || ""
-
     });
-
+    setIsNewCategory(false);
     setModalAbierto(true);
 
 };
@@ -136,10 +151,9 @@ const guardarMaterial = async(e)=>{
     }
 
     try{
-
         const url = materialEditar
-        ? `/api/materiales/${materialEditar.id_material}`
-        : "/api/materiales";
+        ? `http://localhost:3000/api/materiales/${materialEditar.id_material}`
+        : "http://localhost:3000/api/materiales";
 
         const method = materialEditar ? "PUT":"POST";
 
@@ -186,7 +200,7 @@ const guardarMaterial = async(e)=>{
 
         setModalAbierto(false);
         cargarMateriales();
-
+        cargarCategorias();
     }
 
     catch(err){
@@ -204,7 +218,7 @@ const guardarMaterial = async(e)=>{
 const eliminarMaterial=async()=>{
     try{
         const res=await fetch(
-            `/api/materiales/${materialEliminar.id_material}`,
+            `http://localhost:3000/api/materiales/${materialEliminar.id_material}`,
             {
                 method:"DELETE",
                 headers:{
@@ -657,21 +671,62 @@ return (
               </div>
 
               <div className="inv-form-grupo">
-
                 <label>Categoría *</label>
-
-                <input
-                  type="text"
-                  value={form.categoria_nombre || ""}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      categoria_nombre: e.target.value,
-                    })
-                  }
-                  required
-                />
-
+                {!isNewCategory ? (
+                  <select
+                    value={form.categoria_nombre}
+                    onChange={(e) => {
+                      if (e.target.value === "NUEVA_CATEGORIA") {
+                        setIsNewCategory(true);
+                        setForm({ ...form, categoria_nombre: "" });
+                      } else {
+                        setForm({ ...form, categoria_nombre: e.target.value });
+                      }
+                    }}
+                    required
+                    style={{
+                      width: "100%", padding: "10px", borderRadius: "8px", 
+                      border: "1px solid rgba(255, 255, 255, 0.2)", background: "rgba(0, 0, 0, 0.2)", color: "white"
+                    }}
+                  >
+                    <option value="" disabled>Seleccione una categoría...</option>
+                    {categoriasLista.map((cat) => (
+                      <option key={cat.id_categoria} value={cat.nombre} style={{color: "black"}}>
+                        {cat.nombre}
+                      </option>
+                    ))}
+                    <option value="NUEVA_CATEGORIA" style={{ fontWeight: "bold", color: "#691C32" }}>
+                      + Agregar nueva categoría...
+                    </option>
+                  </select>
+                ) : (
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <input
+                      type="text"
+                      placeholder="Escribe la nueva categoría"
+                      value={form.categoria_nombre}
+                      onChange={(e) =>
+                        setForm({ ...form, categoria_nombre: e.target.value })
+                      }
+                      required
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsNewCategory(false);
+                        setForm({ ...form, categoria_nombre: "" });
+                      }}
+                      style={{
+                        background: "rgba(255, 255, 255, 0.1)", border: "none", color: "white",
+                        padding: "0 15px", borderRadius: "8px", cursor: "pointer"
+                      }}
+                      title="Cancelar"
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="inv-form-grupo">

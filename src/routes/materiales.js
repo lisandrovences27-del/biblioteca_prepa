@@ -5,6 +5,7 @@ const { verifyToken, checkRole } = require('../middlewares/authMiddleware');
 
 // Ver catálogo de materiales (Todos los autenticados)
 router.get('/disponibles', verifyToken, materialesController.getMaterialesDisponibles);
+router.get('/categorias', verifyToken, materialesController.getCategorias);
 router.get('/', verifyToken, materialesController.getMateriales);
 router.get('/:id', verifyToken, materialesController.getMaterialById);
 
