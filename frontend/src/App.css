@@ -3242,3 +3242,22 @@ html.tema-oscuro .inv-modal-footer, html.tema-oscuro .inv-modal-header {
   border-color: #333 !important;
 }
 
+
+
+/* Dark Mode overrides for Inventario de Materiales cards */
+html.tema-oscuro .inv-resumen-card {
+  background: #1e293b;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+}
+
+html.tema-oscuro .inv-resumen-card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+html.tema-oscuro .inv-resumen-label {
+  color: #94a3b8 !important;
+}
+
+html.tema-oscuro .inv-resumen-valor {
+  color: #f8fafc !important;
+}
