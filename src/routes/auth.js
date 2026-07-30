@@ -15,6 +15,7 @@ router.get('/me', verifyToken, (req, res) => {
 });
 router.get('/profile', verifyToken, authController.getProfile);
 router.put('/profile', verifyToken, authController.updateProfile);
+router.put('/change-password', verifyToken, authController.changePassword);
 
 // Gestión de alumnos (Solo Bibliotecaria y Encargada)
 router.get('/alumnos', verifyToken, checkRole([1, 2]), authController.getAlumnos);

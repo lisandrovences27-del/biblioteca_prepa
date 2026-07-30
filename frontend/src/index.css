@@ -1,4 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+body, input, button, textarea, select {
+  font-family: 'Montserrat', system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -16,7 +21,7 @@
   --heading: 'Montserrat', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
+  font: calc(18px * var(--a11y-zoom, 1))/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;
   color: var(--text);
@@ -27,7 +32,7 @@
   -moz-osx-font-smoothing: grayscale;
 
   @media (max-width: 1024px) {
-    font-size: 16px;
+    font-size: calc(16px * var(--a11y-zoom, 1));
   }
 }
 
@@ -77,21 +82,21 @@ h2 {
 }
 
 h1 {
-  font-size: 56px;
+  font-size: calc(56px * var(--a11y-zoom, 1));
   letter-spacing: -1.68px;
   margin: 32px 0;
   @media (max-width: 1024px) {
-    font-size: 36px;
+    font-size: calc(36px * var(--a11y-zoom, 1));
     margin: 20px 0;
   }
 }
 h2 {
-  font-size: 24px;
+  font-size: calc(24px * var(--a11y-zoom, 1));
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
   @media (max-width: 1024px) {
-    font-size: 20px;
+    font-size: calc(20px * var(--a11y-zoom, 1));
   }
 }
 p {
@@ -107,7 +112,7 @@ code,
 }
 
 code {
-  font-size: 15px;
+  font-size: calc(15px * var(--a11y-zoom, 1));
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);

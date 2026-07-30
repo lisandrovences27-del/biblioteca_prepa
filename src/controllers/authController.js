@@ -223,3 +223,45 @@ exports.getAlumnos = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener la lista de alumnos' });
     }
 };
+
+// Cambiar contraseña
+exports.changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        const [users] = await pool.query(
+            'SELECT * FROM usuarios WHERE id_usuario = ?',
+            [req.user.id_usuario]
+        );
+
+        if (users.length === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        const user = users[0];
+
+        let validPassword = false;
+        if (user.contrasena.startsWith('$2b$') || user.contrasena.startsWith('$2a$')) {
+            validPassword = await bcrypt.compare(currentPassword, user.contrasena);
+        } else {
+            validPassword = (currentPassword === user.contrasena);
+        }
+
+        if (!validPassword) {
+            return res.status(400).json({ error: 'La contraseña actual es incorrecta' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await pool.query(
+            'UPDATE usuarios SET contrasena = ? WHERE id_usuario = ?',
+            [hashedPassword, req.user.id_usuario]
+        );
+
+        res.json({ message: 'Contraseña actualizada exitosamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al cambiar la contraseña' });
+    }
+};

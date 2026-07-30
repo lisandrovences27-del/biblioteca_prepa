@@ -46,8 +46,8 @@ function Accesibilidad() {
     };
 
     useEffect(() => {
-        // Aplicar zoom a todo el sistema (visible globalmente)
-        document.documentElement.style.zoom = `${tamanoPorcentaje}%`;
+        // Aplicar factor de escala a las fuentes (var(--a11y-zoom))
+        document.documentElement.style.setProperty('--a11y-zoom', tamanoPorcentaje / 100);
 
         // Limpiar clases previas
         document.documentElement.classList.remove(

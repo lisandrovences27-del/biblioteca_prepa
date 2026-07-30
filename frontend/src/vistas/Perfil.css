@@ -68,7 +68,7 @@
   justify-content: center;
   align-items: center;
   color: #666;
-  font-size: 50px;
+  font-size: calc(50px * var(--a11y-zoom, 1));
 }
 
 .perfil-camera-btn {
@@ -89,12 +89,12 @@
 
 .perfil-info h2 {
   margin: 0 0 5px 0;
-  font-size: 28px;
+  font-size: calc(28px * var(--a11y-zoom, 1));
 }
 
 .perfil-info p {
   margin: 0 0 10px 0;
-  font-size: 16px;
+  font-size: calc(16px * var(--a11y-zoom, 1));
   opacity: 0.9;
 }
 
@@ -105,7 +105,7 @@
   background: rgba(0, 0, 0, 0.2);
   padding: 5px 12px;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: calc(14px * var(--a11y-zoom, 1));
   border: 1px solid rgba(255,255,255,0.3);
 }
 
@@ -124,14 +124,14 @@
 }
 
 .perfil-quote {
-  font-size: 16px;
+  font-size: calc(16px * var(--a11y-zoom, 1));
   font-style: italic;
   position: relative;
   line-height: 1.4;
 }
 
 .quote-icon {
-  font-size: 24px;
+  font-size: calc(24px * var(--a11y-zoom, 1));
   opacity: 0.5;
   margin-right: 5px;
 }
@@ -168,13 +168,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 18px;
+  font-size: calc(18px * var(--a11y-zoom, 1));
 }
 
 .perfil-card-header h3 {
   margin: 0;
   color: #333;
-  font-size: 18px;
+  font-size: calc(18px * var(--a11y-zoom, 1));
 }
 
 .perfil-form-group {
@@ -199,7 +199,7 @@
   flex: 0 0 150px;
   color: #333;
   font-weight: 600;
-  font-size: 14px;
+  font-size: calc(14px * var(--a11y-zoom, 1));
 }
 
 .perfil-form-input {
@@ -209,7 +209,7 @@
   border-radius: 8px;
   background-color: #fafafa;
   color: #333;
-  font-size: 14px;
+  font-size: calc(14px * var(--a11y-zoom, 1));
   width: 100%;
 }
 
@@ -285,7 +285,7 @@
 .security-info p {
   margin: 5px 0 0 0;
   color: #666;
-  font-size: 14px;
+  font-size: calc(14px * var(--a11y-zoom, 1));
 }
 
 .security-password-field {
@@ -301,7 +301,7 @@
 .security-password-field input {
   border: none;
   background: transparent;
-  font-size: 24px;
+  font-size: calc(24px * var(--a11y-zoom, 1));
   letter-spacing: 2px;
   color: #333;
   pointer-events: none;
@@ -345,7 +345,7 @@
   justify-content: center;
   align-items: center;
   color: white;
-  font-size: 20px;
+  font-size: calc(20px * var(--a11y-zoom, 1));
 }
 
 .timeline-icon.green { background-color: #4CAF50; }
@@ -354,18 +354,18 @@
 
 .timeline-content h4 {
   margin: 0 0 5px 0;
-  font-size: 14px;
+  font-size: calc(14px * var(--a11y-zoom, 1));
   color: #333;
 }
 
 .timeline-content p {
   margin: 0;
-  font-size: 12px;
+  font-size: calc(12px * var(--a11y-zoom, 1));
   color: #666;
 }
 
 .timeline-content .date {
-  font-size: 11px;
+  font-size: calc(11px * var(--a11y-zoom, 1));
   color: #999;
   margin-top: 3px;
   display: block;

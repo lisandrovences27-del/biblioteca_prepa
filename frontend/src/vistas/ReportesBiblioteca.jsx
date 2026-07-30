@@ -2,7 +2,7 @@ import { useState } from "react";
 import "../App.css";
 import Sidebar from "../componentes/Sidebar";
 import LogoutButton from "../componentes/LogoutButton";
-import { FaCalendarAlt, FaSave, FaEraser, FaFilePdf } from "react-icons/fa";
+import { FaCalendarAlt, FaSave, FaEraser, FaFilePdf, FaPlus, FaTrash } from "react-icons/fa";
 import { useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -13,13 +13,12 @@ function ReportesBiblioteca() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   });
 
-  const initialManualData = {
-    ajedrez: { ah: 0, am: 0, dh: 0, dm: 0 },
-    clasesImpartidas: { ah: 0, am: 0, dh: 0, dm: 0 }
-  };
-
-  const [manualData, setManualData] = useState(initialManualData);
   const [dynamicData, setDynamicData] = useState([]);
+  const [customRows, setCustomRows] = useState([]);
+
+  const [institucion, setInstitucion] = useState("Centro de Estudios Tecnológicos Industrial y de Servicios");
+  const [turno, setTurno] = useState("Turno Matutino");
+  const [elaboradoPor, setElaboradoPor] = useState("");
 
   useEffect(() => {
     const fetchDynamicData = async () => {
@@ -41,21 +40,30 @@ function ReportesBiblioteca() {
     }
   }, [selectedMonth]);
 
-  const handleInputChange = (actividad, campo, valor) => {
-    // Si esta vacio, lo manejamos como string vacio para que no marque error,
-    // pero al sumar lo tratamos como 0.
-    const val = valor === "" ? "" : parseInt(valor) || 0;
-    setManualData((prev) => ({
-      ...prev,
-      [actividad]: {
-        ...prev[actividad],
-        [campo]: val
+  const handleLimpiar = () => {
+    setCustomRows([]);
+  };
+
+  const handleAddCustomRow = () => {
+    setCustomRows([...customRows, { id: Date.now(), nombre: "", ah: 0, am: 0, dh: 0, dm: 0 }]);
+  };
+
+  const handleCustomRowChange = (id, field, value) => {
+    setCustomRows(customRows.map(row => {
+      if (row.id === id) {
+        if (field === 'nombre') {
+          return { ...row, nombre: value };
+        } else {
+          const val = value === "" ? "" : parseInt(value) || 0;
+          return { ...row, [field]: val };
+        }
       }
+      return row;
     }));
   };
 
-  const handleLimpiar = () => {
-    setManualData(initialManualData);
+  const handleRemoveCustomRow = (id) => {
+    setCustomRows(customRows.filter(row => row.id !== id));
   };
 
   const handleGuardar = () => {
@@ -64,31 +72,48 @@ function ReportesBiblioteca() {
 
   const handlePDF = () => {
     const doc = new jsPDF();
-    doc.text(`Reporte Mensual de Biblioteca - ${selectedMonth}`, 14, 20);
     
-    const head = [[
-      'Actividad / Artículo',
-      'Hombres (A)', 'Mujeres (A)', 
-      'Hombres (D)', 'Mujeres (D)', 
-      'Total'
-    ]];
+    // Header institucional
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text(institucion, doc.internal.pageSize.width / 2, 15, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text(turno, doc.internal.pageSize.width / 2, 22, { align: 'center' });
+
+    doc.setFontSize(14);
+    doc.text(`Reporte Mensual de Biblioteca - ${selectedMonth}`, doc.internal.pageSize.width / 2, 32, { align: 'center' });
+    
+    const head = [
+      [
+        { content: 'Actividad / Artículo', rowSpan: 2, styles: { halign: 'center', valign: 'middle' } },
+        { content: 'Alumnos', colSpan: 2, styles: { halign: 'center' } },
+        { content: 'Docentes', colSpan: 2, styles: { halign: 'center' } },
+        { content: 'Total (Suma)', rowSpan: 2, styles: { halign: 'center', valign: 'middle' } }
+      ],
+      [
+        { content: 'Hombres', styles: { halign: 'center', fillColor: [139, 43, 69] } },
+        { content: 'Mujeres', styles: { halign: 'center', fillColor: [139, 43, 69] } },
+        { content: 'Hombres', styles: { halign: 'center', fillColor: [139, 43, 69] } },
+        { content: 'Mujeres', styles: { halign: 'center', fillColor: [139, 43, 69] } }
+      ]
+    ];
 
     const body = dynamicData.map(item => [
-      `${item.nombre} (Automático)`,
+      `${item.nombre}`,
       item.ah, item.am, item.dh, item.dm,
       getTotalFila(item)
     ]);
     
-    body.push([
-      'Ajedrez (Manual)',
-      manualData.ajedrez.ah, manualData.ajedrez.am, manualData.ajedrez.dh, manualData.ajedrez.dm,
-      getTotalFila(manualData.ajedrez)
-    ]);
-    body.push([
-      'Clases impartidas (Manual)',
-      manualData.clasesImpartidas.ah, manualData.clasesImpartidas.am, manualData.clasesImpartidas.dh, manualData.clasesImpartidas.dm,
-      getTotalFila(manualData.clasesImpartidas)
-    ]);
+    // Agregar datos custom
+    customRows.forEach(row => {
+      body.push([
+        row.nombre || 'Sin nombre',
+        row.ah, row.am, row.dh, row.dm,
+        getTotalFila(row)
+      ]);
+    });
 
     const foot = [[
       'TOTAL GENERAL',
@@ -100,10 +125,15 @@ function ReportesBiblioteca() {
       head: head,
       body: body,
       foot: foot,
-      startY: 30,
+      startY: 40,
       theme: 'grid',
       headStyles: { fillColor: [105, 28, 50] }, // Color #691C32
-      footStyles: { fillColor: [253, 251, 247], textColor: [105, 28, 50], fontStyle: 'bold' }
+      footStyles: { fillColor: [253, 251, 247], textColor: [105, 28, 50], fontStyle: 'bold' },
+      didDrawPage: function (data) {
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "italic");
+        doc.text(`Elaborado por: ${elaboradoPor}`, 14, doc.internal.pageSize.height - 15);
+      }
     });
 
     doc.save(`Reporte_Biblioteca_${selectedMonth}.pdf`);
@@ -119,75 +149,74 @@ function ReportesBiblioteca() {
     return getSafeNum(act.ah) + getSafeNum(act.am) + getSafeNum(act.dh) + getSafeNum(act.dm);
   };
 
-  // Totales de columnas dinámicas + manuales
+  // Totales de columnas dinámicas + custom
   const totalAh = 
     dynamicData.reduce((acc, curr) => acc + getSafeNum(curr.ah), 0) + 
-    Object.values(manualData).reduce((acc, curr) => acc + getSafeNum(curr.ah), 0);
+    customRows.reduce((acc, curr) => acc + getSafeNum(curr.ah), 0);
   
   const totalAm = 
     dynamicData.reduce((acc, curr) => acc + getSafeNum(curr.am), 0) + 
-    Object.values(manualData).reduce((acc, curr) => acc + getSafeNum(curr.am), 0);
+    customRows.reduce((acc, curr) => acc + getSafeNum(curr.am), 0);
     
   const totalDh = 
     dynamicData.reduce((acc, curr) => acc + getSafeNum(curr.dh), 0) + 
-    Object.values(manualData).reduce((acc, curr) => acc + getSafeNum(curr.dh), 0);
+    customRows.reduce((acc, curr) => acc + getSafeNum(curr.dh), 0);
     
   const totalDm = 
     dynamicData.reduce((acc, curr) => acc + getSafeNum(curr.dm), 0) + 
-    Object.values(manualData).reduce((acc, curr) => acc + getSafeNum(curr.dm), 0);
+    customRows.reduce((acc, curr) => acc + getSafeNum(curr.dm), 0);
     
   const totalGeneral = totalAh + totalAm + totalDh + totalDm;
 
-  const RowItemManual = ({ label, objectKey }) => {
-    return (
-      <tr>
-        <td style={styles.tdLabel}>{label}<br/><span style={{fontSize:'10px', color:'#888'}}>(Manual)</span></td>
-        <td style={styles.tdInput}>
-          <input 
-            type="number" 
-            style={styles.input} 
-            value={manualData[objectKey].ah} 
-            onChange={(e) => handleInputChange(objectKey, 'ah', e.target.value)} 
-          />
-        </td>
-        <td style={styles.tdInput}>
-          <input 
-            type="number" 
-            style={styles.input} 
-            value={manualData[objectKey].am} 
-            onChange={(e) => handleInputChange(objectKey, 'am', e.target.value)} 
-          />
-        </td>
-        <td style={styles.tdInput}>
-          <input 
-            type="number" 
-            style={styles.input} 
-            value={manualData[objectKey].dh} 
-            onChange={(e) => handleInputChange(objectKey, 'dh', e.target.value)} 
-          />
-        </td>
-        <td style={styles.tdInput}>
-          <input 
-            type="number" 
-            style={styles.input} 
-            value={manualData[objectKey].dm} 
-            onChange={(e) => handleInputChange(objectKey, 'dm', e.target.value)} 
-          />
-        </td>
-        <td style={styles.tdTotalRow}>{getTotalFila(manualData[objectKey])}</td>
-      </tr>
-    );
-  };
+
 
   const RowItemDinamico = ({ item }) => {
     return (
       <tr>
-        <td style={styles.tdLabel}>{item.nombre}<br/><span style={{fontSize:'10px', color:'#888'}}>(Automático)</span></td>
+        <td style={styles.tdLabel}>{item.nombre}</td>
         <td style={styles.tdInput}>{item.ah}</td>
         <td style={styles.tdInput}>{item.am}</td>
         <td style={styles.tdInput}>{item.dh}</td>
         <td style={styles.tdInput}>{item.dm}</td>
         <td style={styles.tdTotalRow}>{getTotalFila(item)}</td>
+      </tr>
+    );
+  };
+
+  const RowItemCustom = ({ row }) => {
+    return (
+      <tr>
+        <td style={styles.tdLabel}>
+          <div style={{display: 'flex', gap: '5px', alignItems: 'center'}}>
+            <button 
+              onClick={() => handleRemoveCustomRow(row.id)} 
+              style={{background: 'transparent', border: 'none', color: '#d33', cursor: 'pointer', padding: '5px'}}
+              title="Eliminar fila"
+            >
+              <FaTrash />
+            </button>
+            <input 
+              type="text" 
+              placeholder="Nombre del artículo..." 
+              style={{...styles.input, width: '100%', textAlign: 'left'}} 
+              value={row.nombre} 
+              onChange={(e) => handleCustomRowChange(row.id, 'nombre', e.target.value)} 
+            />
+          </div>
+        </td>
+        <td style={styles.tdInput}>
+          <input type="number" style={styles.input} value={row.ah} onChange={(e) => handleCustomRowChange(row.id, 'ah', e.target.value)} />
+        </td>
+        <td style={styles.tdInput}>
+          <input type="number" style={styles.input} value={row.am} onChange={(e) => handleCustomRowChange(row.id, 'am', e.target.value)} />
+        </td>
+        <td style={styles.tdInput}>
+          <input type="number" style={styles.input} value={row.dh} onChange={(e) => handleCustomRowChange(row.id, 'dh', e.target.value)} />
+        </td>
+        <td style={styles.tdInput}>
+          <input type="number" style={styles.input} value={row.dm} onChange={(e) => handleCustomRowChange(row.id, 'dm', e.target.value)} />
+        </td>
+        <td style={styles.tdTotalRow}>{getTotalFila(row)}</td>
       </tr>
     );
   };
@@ -198,22 +227,57 @@ function ReportesBiblioteca() {
       <main className="main-content">
         
         {/* Header y Acciones */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '20px' }}>
-          <div>
-            <h1 style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0, color: '#333' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px', flexWrap: 'wrap', gap: '20px' }}>
+          <div style={{ flex: '1', minWidth: '300px' }}>
+            <h1 style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0, color: '#333', fontSize: 'calc(34px * var(--a11y-zoom, 1))', lineHeight: '1.3' }}>
               <FaCalendarAlt /> Reporte Mensual de Actividades
             </h1>
             <p style={{ margin: '5px 0 15px 0', color: '#666' }}>
               Registra las actividades realizadas por alumnos y docentes durante el mes seleccionado.
             </p>
-            <input 
-              type="month" 
-              style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #ccc', outline: 'none' }}
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-            />
+            <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-start', flexWrap: 'wrap', marginTop: '15px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                <label style={{ fontSize: '12px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase' }}>Mes</label>
+                <input 
+                  type="month" 
+                  style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #ddd', outline: 'none', fontSize: '15px', backgroundColor: '#f9f9f9', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)', minWidth: '180px' }}
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '2', minWidth: '250px' }}>
+                <label style={{ fontSize: '12px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase' }}>Institución</label>
+                <input 
+                  type="text" 
+                  placeholder="Ej. Centro de Estudios..."
+                  style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #ddd', outline: 'none', fontSize: '15px', backgroundColor: '#f9f9f9', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)', width: '100%' }}
+                  value={institucion}
+                  onChange={(e) => setInstitucion(e.target.value)}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1', minWidth: '150px' }}>
+                <label style={{ fontSize: '12px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase' }}>Turno</label>
+                <input 
+                  type="text" 
+                  placeholder="Ej. Turno Matutino"
+                  style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #ddd', outline: 'none', fontSize: '15px', backgroundColor: '#f9f9f9', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)', width: '100%' }}
+                  value={turno}
+                  onChange={(e) => setTurno(e.target.value)}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1.5', minWidth: '180px' }}>
+                <label style={{ fontSize: '12px', color: '#888', fontWeight: 'bold', textTransform: 'uppercase' }}>Elaborado Por</label>
+                <input 
+                  type="text" 
+                  placeholder="Nombre de encargada..."
+                  style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #ddd', outline: 'none', fontSize: '15px', backgroundColor: '#f9f9f9', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)', width: '100%' }}
+                  value={elaboradoPor}
+                  onChange={(e) => setElaboradoPor(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', paddingTop: '10px' }}>
             <button style={{ ...styles.btn, backgroundColor: '#691C32', color: 'white' }} onClick={handleGuardar}>
               <FaSave /> Guardar
             </button>
@@ -252,8 +316,19 @@ function ReportesBiblioteca() {
                   <td colSpan="6" style={{ padding: '20px' }}>No hay préstamos registrados este mes.</td>
                 </tr>
               )}
-              <RowItemManual label="Ajedrez" objectKey="ajedrez" />
-              <RowItemManual label="Clases impartidas" objectKey="clasesImpartidas" />
+              {customRows.map(row => (
+                <RowItemCustom key={row.id} row={row} />
+              ))}
+              <tr>
+                <td colSpan="6" style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #eee' }}>
+                  <button 
+                    onClick={handleAddCustomRow} 
+                    style={{ ...styles.btn, backgroundColor: '#f0f0f0', color: '#691C32', margin: '0 auto' }}
+                  >
+                    <FaPlus /> Agregar fila manual
+                  </button>
+                </td>
+              </tr>
             </tbody>
             <tfoot>
               <tr style={{ backgroundColor: '#fdfbf7' }}>
