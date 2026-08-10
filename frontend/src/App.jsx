@@ -18,6 +18,8 @@ import PerfilAlumno from "./vistas/PerfilAlumno";
 import PerfilAdmin2 from "./vistas/PerfilAdmin2";
 import ReportesMateriales from "./vistas/ReportesMateriales";
 import Sanciones from "./vistas/Sanciones";
+import ForgotPassword from "./vistas/ForgotPassword";
+import ResetPassword from "./vistas/ResetPassword";
 
 function App() {
 
@@ -29,6 +31,9 @@ function App() {
       <Route path="/" element={<Login />} />
       {/* Ruta registro (pública) */}
       <Route path="/registro" element={<Registro />} />
+      {/* Rutas de recuperación de contraseña (públicas) */}
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* ===== RUTAS DE ADMINISTRADOR (Roles 1 y 2) ===== */}
       <Route path="/dashboard-admin" element={<ProtectedRoute allowedRoles={[1]}><DashboardAdmin1 /></ProtectedRoute>} />

@@ -287,9 +287,9 @@ function Login() {
 
             </label>
 
-            <a href="#">
+            <Link to="/forgot-password">
               ¿Olvidaste tu contraseña?
-            </a>
+            </Link>
 
           </div>
 

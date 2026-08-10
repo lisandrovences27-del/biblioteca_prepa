@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../../config/db');
+const transporter = require('../../config/mailer');
+
 
 // Registro de Alumnos
 exports.registerAlumno = async (req, res) => {
@@ -263,5 +265,111 @@ exports.changePassword = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al cambiar la contraseña' });
+    }
+};
+
+// Solicitar recuperación de contraseña
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { correo_electronico } = req.body;
+
+        const [users] = await pool.query(
+            'SELECT id_usuario, correo_electronico, nombre_completo FROM usuarios WHERE correo_electronico = ?',
+            [correo_electronico]
+        );
+
+        console.log("Buscando el correo:", correo_electronico);
+        console.log("Usuarios encontrados:", users.length);
+
+        if (users.length === 0) {
+            // No revelamos si el correo existe o no por seguridad, devolvems exito
+            return res.json({ message: 'Si el correo existe en nuestro sistema, recibirás un enlace de recuperación.' });
+        }
+
+        const user = users[0];
+
+        // Crear token temporal que expira en 15 minutos
+        const resetToken = jwt.sign(
+            { id_usuario: user.id_usuario },
+            process.env.JWT_SECRET,
+            { expiresIn: '15m' }
+        );
+
+        const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
+
+        // Si no hay correo configurado, mostramos el enlace en consola para poder probar
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            console.log('\n=============================================');
+            console.log('FALTA CONFIGURAR EL CORREO EN .env (EMAIL_USER y EMAIL_PASS)');
+            console.log('Enlace de recuperación (Modo Prueba):');
+            console.log(resetLink);
+            console.log('=============================================\n');
+            return res.json({ message: 'Modo prueba activo: Revisa la consola del servidor para obtener el enlace de recuperación.' });
+        }
+
+        // Enviar correo
+        const mailOptions = {
+            from: process.env.EMAIL_USER || 'no-reply@bibliotecaprepa.edu.mx',
+            to: user.correo_electronico,
+            subject: 'Recuperación de Contraseña - Biblioteca',
+            html: `
+                <h3>Hola ${user.nombre_completo},</h3>
+                <p>Has solicitado restablecer tu contraseña en el Sistema de Biblioteca.</p>
+                <p>Haz clic en el siguiente enlace para crear una nueva contraseña. <b>Este enlace expirará en 15 minutos.</b></p>
+                <a href="${resetLink}">Restablecer mi contraseña</a>
+                <p>Si no solicitaste este cambio, ignora este correo.</p>
+            `
+        };
+
+        console.log("Intentando enviar correo a:", user.correo_electronico);
+        await transporter.sendMail(mailOptions);
+        console.log("¡Correo enviado exitosamente a Gmail!");
+        
+        res.json({ message: 'Si el correo existe en nuestro sistema, recibirás un enlace de recuperación.' });
+
+    } catch (error) {
+        console.error('Error en forgotPassword:', error);
+        res.status(500).json({ error: 'Error al procesar la solicitud de recuperación' });
+    }
+};
+
+// Restablecer contraseña con token
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({ error: 'Faltan datos (token o nueva contraseña)' });
+        }
+
+        // Verificar token
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            return res.status(400).json({ error: 'El enlace de recuperación es inválido o ha expirado.' });
+        }
+
+        const id_usuario = decoded.id_usuario;
+
+        // Hashear nueva contraseña
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Actualizar contraseña en base de datos
+        const [result] = await pool.query(
+            'UPDATE usuarios SET contrasena = ? WHERE id_usuario = ?',
+            [hashedPassword, id_usuario]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        res.json({ message: 'Contraseña restablecida exitosamente. Ahora puedes iniciar sesión.' });
+
+    } catch (error) {
+        console.error('Error en resetPassword:', error);
+        res.status(500).json({ error: 'Error al restablecer la contraseña' });
     }
 };

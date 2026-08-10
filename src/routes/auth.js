@@ -9,6 +9,10 @@ router.post('/register', authController.registerAlumno);
 // Login (público)
 router.post('/login', authController.login);
 
+// Recuperación de Contraseña (público)
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password', authController.resetPassword);
+
 // Perfil del usuario logueado
 router.get('/me', verifyToken, (req, res) => {
     res.json({ user: req.user });
