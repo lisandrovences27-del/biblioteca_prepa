@@ -6,7 +6,11 @@ function LibrosAlumno() {
   const [libros, setLibros] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
   const [modalSancionado, setModalSancionado] = useState(false);
+
+  // Categorías únicas
+  const categoriasUnicas = [...new Set(libros.map(l => l.subcategoria).filter(Boolean))];
 
   const getToken = () => localStorage.getItem("token");
 
@@ -39,9 +43,15 @@ function LibrosAlumno() {
   }, []);
 
   const librosFiltrados = libros.filter(
-    (libro) =>
-      libro.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      libro.codigo_interno?.toLowerCase().includes(busqueda.toLowerCase())
+    (libro) => {
+      const coincideBusqueda = 
+        libro.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
+        libro.codigo_interno?.toLowerCase().includes(busqueda.toLowerCase());
+      
+      const coincideCategoria = categoriaSeleccionada === "" || libro.subcategoria === categoriaSeleccionada;
+
+      return coincideBusqueda && coincideCategoria;
+    }
   );
   const handleSolicitar = async (libro) => {
     try {
@@ -96,23 +106,37 @@ function LibrosAlumno() {
           <div className="table-header">
             <h2>Libros de la Biblioteca</h2>
 
-            <div className="inv-buscador-container">
-              <FaSearch className="inv-buscador-icono" />
+            <div className="inv-buscador-container" style={{ display: 'flex', gap: '10px', background: 'transparent', padding: 0 }}>
+              <select 
+                className="inv-buscador" 
+                style={{ cursor: 'pointer', maxWidth: '200px' }}
+                value={categoriaSeleccionada}
+                onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+              >
+                <option value="">Todas las categorías</option>
+                {categoriasUnicas.map((cat, i) => (
+                  <option key={i} value={cat}>{cat}</option>
+                ))}
+              </select>
 
-              <input
-                type="text"
-                placeholder="Buscar libro..."
-                className="inv-buscador"
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-              />
-
-              {busqueda && (
-                <FaTimes
-                  className="inv-buscador-limpiar"
-                  onClick={() => setBusqueda("")}
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: 1, background: '#f5f7fa', borderRadius: '20px', padding: '5px 15px' }}>
+                <FaSearch className="inv-buscador-icono" style={{ position: 'static', marginRight: '10px' }} />
+                <input
+                  type="text"
+                  placeholder="Buscar libro..."
+                  className="inv-buscador"
+                  style={{ background: 'transparent', padding: 0 }}
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
                 />
-              )}
+                {busqueda && (
+                  <FaTimes
+                    className="inv-buscador-limpiar"
+                    style={{ position: 'static', marginLeft: '10px' }}
+                    onClick={() => setBusqueda("")}
+                  />
+                )}
+              </div>
             </div>
           </div>
 

@@ -17,10 +17,15 @@ import {
   FaBan
 } from "react-icons/fa";
 import { useState, useEffect } from "react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 function Prestamos() {
   const [solicitudes, setSolicitudes] = useState([]);
   const [busqueda, setBusqueda] = useState("");
+  const [estadoFiltro, setEstadoFiltro] = useState("todos");
+  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
 
   const cargarSolicitudes = async () => {
     try {
@@ -35,7 +40,9 @@ function Prestamos() {
         id_alumno: p.id_alumno,
         alumno: p.alumno || "Desconocido",
         matricula: p.numero_control || "N/A",
+        especialidad: p.especialidad ? `${p.especialidad} (${p.grado || "-"} ${p.grupo || "-"})` : "N/A",
         libro: p.material || "N/A",
+        fechaSolicitudRaw: p.fecha_solicitud,
         fechaSolicitud: new Date(p.fecha_solicitud).toLocaleDateString("es-ES"),
         estado: p.estado,
         fechaDevolucion: p.fecha_devolucion_esperada ? new Date(p.fecha_devolucion_esperada).toLocaleDateString("es-ES") : null,
@@ -229,11 +236,71 @@ function Prestamos() {
   const rechazadas = solicitudes.filter(s => s.estado === "Rechazado" || s.estado === "Rechazada").length;
 
   // Filtrado
-  const solicitudesFiltradas = solicitudes.filter(s => 
-    s.alumno.toLowerCase().includes(busqueda.toLowerCase()) || 
-    s.matricula.includes(busqueda) ||
-    s.libro.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const solicitudesFiltradas = solicitudes.filter(s => {
+    const coincideBusqueda = 
+      s.alumno.toLowerCase().includes(busqueda.toLowerCase()) || 
+      s.matricula.includes(busqueda) ||
+      s.libro.toLowerCase().includes(busqueda.toLowerCase());
+      
+    const coincideEstado = estadoFiltro === "todos" || s.estado.toLowerCase() === estadoFiltro.toLowerCase();
+    
+    let coincideFecha = true;
+    if (fechaInicio || fechaFin) {
+      const f = new Date(s.fechaSolicitudRaw);
+      if (fechaInicio) {
+        const inicio = new Date(fechaInicio);
+        coincideFecha = coincideFecha && f >= inicio;
+      }
+      if (fechaFin) {
+        const fin = new Date(fechaFin);
+        fin.setHours(23, 59, 59);
+        coincideFecha = coincideFecha && f <= fin;
+      }
+    }
+    
+    return coincideBusqueda && coincideEstado && coincideFecha;
+  });
+
+  // Exportar PDF
+  const generarPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Centro de Estudios Tecnológicos Industrial y de Servicios", doc.internal.pageSize.width / 2, 15, { align: 'center' });
+    
+    doc.setFontSize(14);
+    doc.text("Reporte de Préstamos (Biblioteca)", doc.internal.pageSize.width / 2, 25, { align: 'center' });
+    
+    let subtitle = `Estado: ${estadoFiltro.charAt(0).toUpperCase() + estadoFiltro.slice(1)}`;
+    if (fechaInicio && fechaFin) subtitle += ` | Fechas: ${fechaInicio} a ${fechaFin}`;
+    
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.text(subtitle, doc.internal.pageSize.width / 2, 32, { align: 'center' });
+
+    const head = [["Alumno", "Salón", "Libro", "Fecha", "Estado"]];
+    const body = solicitudesFiltradas.map(s => [
+      s.alumno,
+      s.especialidad,
+      s.libro,
+      s.fechaSolicitud,
+      s.estado
+    ]);
+
+    autoTable(doc, {
+      head: head,
+      body: body,
+      startY: 40,
+      theme: 'grid',
+      headStyles: { fillColor: [105, 28, 50] },
+      didDrawPage: function (data) {
+        doc.setFontSize(10);
+        doc.text(`Total de registros: ${solicitudesFiltradas.length}`, 14, doc.internal.pageSize.height - 10);
+      }
+    });
+
+    doc.save(`Reporte_Prestamos_${new Date().getTime()}.pdf`);
+  };
 
   // Helper para Badges Visuales
   const renderBadge = (estado) => {
@@ -346,22 +413,69 @@ function Prestamos() {
 
         {/* ===== TABLA DE SOLICITUDES ===== */}
         <div className="table-section" style={{ marginTop: "30px", borderRadius: "20px", overflow: "hidden", backgroundColor: "white", boxShadow: "0 10px 30px rgba(0,0,0,0.05)" }}>
-          <div className="table-header" style={{ padding: "20px 30px", borderBottom: "1px solid #eee", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2 style={{ margin: 0, color: "#0B1742", display: "flex", alignItems: "center", gap: "10px" }}>
-              <FaBook /> Lista de Solicitudes
-            </h2>
+          <div className="table-header" style={{ padding: "20px 30px", borderBottom: "1px solid #eee", display: "flex", flexDirection: "column", gap: "20px" }}>
             
-            {/* Buscador Integrado */}
-            <div style={{ position: "relative", width: "300px" }}>
-              <FaSearch style={{ position: "absolute", left: "15px", top: "50%", transform: "translateY(-50%)", color: "#888" }} />
-              <input
-                type="text"
-                placeholder="Buscar alumno, matrícula o libro..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                style={{ width: "100%", padding: "10px 10px 10px 40px", borderRadius: "12px", border: "1px solid #ddd", outline: "none", backgroundColor: "#f5f5f5", boxSizing: "border-box" }}
-              />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ margin: 0, color: "#0B1742", display: "flex", alignItems: "center", gap: "10px" }}>
+                <FaBook /> Lista de Préstamos
+              </h2>
+              <button onClick={generarPDF} style={{ padding: '10px 15px', background: '#0A1F44', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+                Generar Reporte PDF
+              </button>
             </div>
+            
+            {/* Filtros Integrados */}
+            <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', backgroundColor: '#fdfbf7', padding: '15px', borderRadius: '10px', border: '1px solid #e2d5c1' }}>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#691C32', marginBottom: '5px', display: 'block' }}>Buscar</label>
+                <div style={{ position: "relative", width: "100%" }}>
+                  <FaSearch style={{ position: "absolute", left: "15px", top: "50%", transform: "translateY(-50%)", color: "#888" }} />
+                  <input
+                    type="text"
+                    placeholder="Buscar alumno, matrícula o libro..."
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    style={{ width: "100%", padding: "10px 10px 10px 40px", borderRadius: "8px", border: "1px solid #ddd", outline: "none", backgroundColor: "white", boxSizing: "border-box" }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ minWidth: '150px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#691C32', marginBottom: '5px', display: 'block' }}>Estado</label>
+                <select 
+                  style={{ width: '100%', padding: '9px', borderRadius: '8px', border: '1px solid #ddd', outline: 'none', backgroundColor: 'white' }}
+                  value={estadoFiltro}
+                  onChange={(e) => setEstadoFiltro(e.target.value)}
+                >
+                  <option value="todos">Todos</option>
+                  <option value="pendiente">Pendientes</option>
+                  <option value="activo">Activos</option>
+                  <option value="rechazado">Rechazados</option>
+                  <option value="devuelto">Devueltos</option>
+                </select>
+              </div>
+
+              <div style={{ minWidth: '150px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#691C32', marginBottom: '5px', display: 'block' }}>Desde</label>
+                <input 
+                  type="date"
+                  style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #ddd', outline: 'none', backgroundColor: 'white' }}
+                  value={fechaInicio}
+                  onChange={(e) => setFechaInicio(e.target.value)}
+                />
+              </div>
+
+              <div style={{ minWidth: '150px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#691C32', marginBottom: '5px', display: 'block' }}>Hasta</label>
+                <input 
+                  type="date"
+                  style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #ddd', outline: 'none', backgroundColor: 'white' }}
+                  value={fechaFin}
+                  onChange={(e) => setFechaFin(e.target.value)}
+                />
+              </div>
+            </div>
+
           </div>
 
           <div className="table-container" style={{ overflowX: "auto", padding: "20px" }}>
@@ -375,9 +489,9 @@ function Prestamos() {
                 <thead>
                   <tr style={{ backgroundColor: "#f9f9f9", color: "#555", textAlign: "left" }}>
                     <th style={{ padding: "15px", borderBottom: "2px solid #eee" }}>Alumno</th>
-                    <th style={{ padding: "15px", borderBottom: "2px solid #eee" }}>Matrícula</th>
-                    <th style={{ padding: "15px", borderBottom: "2px solid #eee" }}>Libro / Material</th>
-                    <th style={{ padding: "15px", borderBottom: "2px solid #eee" }}>Fecha Solicitud</th>
+                    <th style={{ padding: "15px", borderBottom: "2px solid #eee" }}>Salón</th>
+                    <th style={{ padding: "15px", borderBottom: "2px solid #eee" }}>Libro</th>
+                    <th style={{ padding: "15px", borderBottom: "2px solid #eee" }}>Fecha</th>
                     <th style={{ padding: "15px", borderBottom: "2px solid #eee" }}>Estado</th>
                     <th style={{ padding: "15px", borderBottom: "2px solid #eee", textAlign: "center" }}>Acciones</th>
                   </tr>
@@ -391,7 +505,7 @@ function Prestamos() {
                         </div>
                         {solicitud.alumno}
                       </td>
-                      <td style={{ padding: "15px", color: "#666" }}>{solicitud.matricula}</td>
+                      <td style={{ padding: "15px", color: "#666" }}>{solicitud.especialidad}</td>
                       <td style={{ padding: "15px", color: "#333", fontWeight: "500" }}>{solicitud.libro}</td>
                       <td style={{ padding: "15px", color: "#666" }}>{solicitud.fechaSolicitud}</td>
                       <td style={{ padding: "15px" }}>{renderBadge(solicitud.estado)}</td>

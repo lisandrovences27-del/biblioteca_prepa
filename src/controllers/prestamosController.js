@@ -179,7 +179,7 @@ exports.getTodosPrestamos = async (req, res) => {
     try {
         const id_rol = req.user.id_rol;
         let query = `
-            SELECT p.*, u.nombre_completo AS alumno, u.numero_control,
+            SELECT p.*, u.nombre_completo AS alumno, u.numero_control, u.grado, u.grupo, u.especialidad,
                    COALESCE(l.nombre, m.nombre) AS material,
                    CASE WHEN p.tipo_prestamo = 'Libro' THEN 'Libro' ELSE c.nombre END AS categoria
             FROM prestamos p 
@@ -211,7 +211,7 @@ exports.getPrestamosPendientes = async (req, res) => {
     try {
         const id_rol = req.user.id_rol;
         let query = `
-            SELECT p.*, u.nombre_completo AS alumno, u.numero_control,
+            SELECT p.*, u.nombre_completo AS alumno, u.numero_control, u.grado, u.grupo, u.especialidad,
                    COALESCE(l.nombre, m.nombre) AS material,
                    CASE WHEN p.tipo_prestamo = 'Libro' THEN 'Libro' ELSE c.nombre END AS categoria
             FROM prestamos p
@@ -245,7 +245,7 @@ exports.getHistorialPrestamos = async (req, res) => {
         const { fecha_inicio, fecha_fin, estado } = req.query;
 
         let query = `
-            SELECT p.*, u.nombre_completo AS alumno, u.numero_control,
+            SELECT p.*, u.nombre_completo AS alumno, u.numero_control, u.grado, u.grupo, u.especialidad,
                    COALESCE(l.nombre, m.nombre) AS material,
                    CASE WHEN p.tipo_prestamo = 'Libro' THEN 'Libro' ELSE c.nombre END AS categoria
             FROM prestamos p

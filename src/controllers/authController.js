@@ -36,10 +36,9 @@ exports.registerAlumno = async (req, res) => {
             return res.status(400).json({ error: 'El correo, número de control' + (curp ? ' o CURP' : '') + ' ya están registrados.' });
         }
 
-        // Hashear contraseña (TEMPORALMENTE DESHABILITADO)
-        // const salt = await bcrypt.genSalt(10);
-        // const hashedPassword = await bcrypt.hash(contrasena, salt);
-        const hashedPassword = contrasena;
+        // Hashear contraseña
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(contrasena, salt);
 
         // id_rol 3 es para Alumno según database.sql
         const [result] = await pool.query(

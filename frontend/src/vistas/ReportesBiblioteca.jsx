@@ -29,7 +29,9 @@ function ReportesBiblioteca() {
         });
         if (res.ok) {
           const data = await res.json();
-          setDynamicData(data);
+          setDynamicData(Array.isArray(data) ? data : []);
+        } else {
+          setDynamicData([]);
         }
       } catch (error) {
         console.error("Error fetching dynamic report", error);
@@ -151,75 +153,22 @@ function ReportesBiblioteca() {
 
   // Totales de columnas dinámicas + custom
   const totalAh = 
-    dynamicData.reduce((acc, curr) => acc + getSafeNum(curr.ah), 0) + 
-    customRows.reduce((acc, curr) => acc + getSafeNum(curr.ah), 0);
+    (Array.isArray(dynamicData) ? dynamicData : []).reduce((acc, curr) => acc + getSafeNum(curr?.ah), 0) + 
+    (Array.isArray(customRows) ? customRows : []).reduce((acc, curr) => acc + getSafeNum(curr?.ah), 0);
   
   const totalAm = 
-    dynamicData.reduce((acc, curr) => acc + getSafeNum(curr.am), 0) + 
-    customRows.reduce((acc, curr) => acc + getSafeNum(curr.am), 0);
+    (Array.isArray(dynamicData) ? dynamicData : []).reduce((acc, curr) => acc + getSafeNum(curr?.am), 0) + 
+    (Array.isArray(customRows) ? customRows : []).reduce((acc, curr) => acc + getSafeNum(curr?.am), 0);
     
   const totalDh = 
-    dynamicData.reduce((acc, curr) => acc + getSafeNum(curr.dh), 0) + 
-    customRows.reduce((acc, curr) => acc + getSafeNum(curr.dh), 0);
+    (Array.isArray(dynamicData) ? dynamicData : []).reduce((acc, curr) => acc + getSafeNum(curr?.dh), 0) + 
+    (Array.isArray(customRows) ? customRows : []).reduce((acc, curr) => acc + getSafeNum(curr?.dh), 0);
     
   const totalDm = 
-    dynamicData.reduce((acc, curr) => acc + getSafeNum(curr.dm), 0) + 
-    customRows.reduce((acc, curr) => acc + getSafeNum(curr.dm), 0);
+    (Array.isArray(dynamicData) ? dynamicData : []).reduce((acc, curr) => acc + getSafeNum(curr?.dm), 0) + 
+    (Array.isArray(customRows) ? customRows : []).reduce((acc, curr) => acc + getSafeNum(curr?.dm), 0);
     
   const totalGeneral = totalAh + totalAm + totalDh + totalDm;
-
-
-
-  const RowItemDinamico = ({ item }) => {
-    return (
-      <tr>
-        <td style={styles.tdLabel}>{item.nombre}</td>
-        <td style={styles.tdInput}>{item.ah}</td>
-        <td style={styles.tdInput}>{item.am}</td>
-        <td style={styles.tdInput}>{item.dh}</td>
-        <td style={styles.tdInput}>{item.dm}</td>
-        <td style={styles.tdTotalRow}>{getTotalFila(item)}</td>
-      </tr>
-    );
-  };
-
-  const RowItemCustom = ({ row }) => {
-    return (
-      <tr>
-        <td style={styles.tdLabel}>
-          <div style={{display: 'flex', gap: '5px', alignItems: 'center'}}>
-            <button 
-              onClick={() => handleRemoveCustomRow(row.id)} 
-              style={{background: 'transparent', border: 'none', color: '#d33', cursor: 'pointer', padding: '5px'}}
-              title="Eliminar fila"
-            >
-              <FaTrash />
-            </button>
-            <input 
-              type="text" 
-              placeholder="Nombre del artículo..." 
-              style={{...styles.input, width: '100%', textAlign: 'left'}} 
-              value={row.nombre} 
-              onChange={(e) => handleCustomRowChange(row.id, 'nombre', e.target.value)} 
-            />
-          </div>
-        </td>
-        <td style={styles.tdInput}>
-          <input type="number" style={styles.input} value={row.ah} onChange={(e) => handleCustomRowChange(row.id, 'ah', e.target.value)} />
-        </td>
-        <td style={styles.tdInput}>
-          <input type="number" style={styles.input} value={row.am} onChange={(e) => handleCustomRowChange(row.id, 'am', e.target.value)} />
-        </td>
-        <td style={styles.tdInput}>
-          <input type="number" style={styles.input} value={row.dh} onChange={(e) => handleCustomRowChange(row.id, 'dh', e.target.value)} />
-        </td>
-        <td style={styles.tdInput}>
-          <input type="number" style={styles.input} value={row.dm} onChange={(e) => handleCustomRowChange(row.id, 'dm', e.target.value)} />
-        </td>
-        <td style={styles.tdTotalRow}>{getTotalFila(row)}</td>
-      </tr>
-    );
-  };
 
   return (
     <div className="dashboard">
@@ -309,15 +258,21 @@ function ReportesBiblioteca() {
               </tr>
             </thead>
             <tbody>
-              {dynamicData.length > 0 ? dynamicData.map((item, index) => (
-                <RowItemDinamico key={index} item={item} />
+              {Array.isArray(dynamicData) && dynamicData.length > 0 ? dynamicData.map((item, index) => (
+                <RowItemDinamico key={index} item={item} getTotalFila={getTotalFila} />
               )) : (
                 <tr>
                   <td colSpan="6" style={{ padding: '20px' }}>No hay préstamos registrados este mes.</td>
                 </tr>
               )}
-              {customRows.map(row => (
-                <RowItemCustom key={row.id} row={row} />
+              {Array.isArray(customRows) && customRows.map(row => (
+                <RowItemCustom 
+                  key={row.id} 
+                  row={row} 
+                  handleRemoveCustomRow={handleRemoveCustomRow}
+                  handleCustomRowChange={handleCustomRowChange}
+                  getTotalFila={getTotalFila} 
+                />
               ))}
               <tr>
                 <td colSpan="6" style={{ padding: '10px', textAlign: 'left', borderBottom: '1px solid #eee' }}>
@@ -362,6 +317,57 @@ function ReportesBiblioteca() {
     </div>
   );
 }
+
+const RowItemDinamico = ({ item, getTotalFila }) => {
+  return (
+    <tr>
+      <td style={styles.tdLabel}>{item?.nombre || ''}</td>
+      <td style={styles.tdInput}>{item?.ah || 0}</td>
+      <td style={styles.tdInput}>{item?.am || 0}</td>
+      <td style={styles.tdInput}>{item?.dh || 0}</td>
+      <td style={styles.tdInput}>{item?.dm || 0}</td>
+      <td style={styles.tdTotalRow}>{getTotalFila(item)}</td>
+    </tr>
+  );
+};
+
+const RowItemCustom = ({ row, handleRemoveCustomRow, handleCustomRowChange, getTotalFila }) => {
+  return (
+    <tr>
+      <td style={styles.tdLabel}>
+        <div style={{display: 'flex', gap: '5px', alignItems: 'center'}}>
+          <button 
+            onClick={() => handleRemoveCustomRow(row.id)} 
+            style={{background: 'transparent', border: 'none', color: '#d33', cursor: 'pointer', padding: '5px'}}
+            title="Eliminar fila"
+          >
+            <FaTrash />
+          </button>
+          <input 
+            type="text" 
+            placeholder="Nombre del artículo..." 
+            style={{...styles.input, width: '100%', textAlign: 'left'}} 
+            value={row.nombre} 
+            onChange={(e) => handleCustomRowChange(row.id, 'nombre', e.target.value)} 
+          />
+        </div>
+      </td>
+      <td style={styles.tdInput}>
+        <input type="number" style={styles.input} value={row.ah} onChange={(e) => handleCustomRowChange(row.id, 'ah', e.target.value)} />
+      </td>
+      <td style={styles.tdInput}>
+        <input type="number" style={styles.input} value={row.am} onChange={(e) => handleCustomRowChange(row.id, 'am', e.target.value)} />
+      </td>
+      <td style={styles.tdInput}>
+        <input type="number" style={styles.input} value={row.dh} onChange={(e) => handleCustomRowChange(row.id, 'dh', e.target.value)} />
+      </td>
+      <td style={styles.tdInput}>
+        <input type="number" style={styles.input} value={row.dm} onChange={(e) => handleCustomRowChange(row.id, 'dm', e.target.value)} />
+      </td>
+      <td style={styles.tdTotalRow}>{getTotalFila(row)}</td>
+    </tr>
+  );
+};
 
 const styles = {
   btn: {

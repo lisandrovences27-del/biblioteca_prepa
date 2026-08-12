@@ -23,6 +23,10 @@ function Libros() {
   const [libroEliminar, setLibroEliminar] = useState(null);
   const [error, setError] = useState("");
   const [exito, setExito] = useState("");
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
+
+  // Categorías únicas
+  const categoriasUnicas = [...new Set(libros.map(l => l.subcategoria).filter(Boolean))];
 
   // Form state
   const [form, setForm] = useState({
@@ -78,12 +82,18 @@ function Libros() {
     }
   }, [exito, error]);
 
-  // Filtrar libros por búsqueda
+  // Filtrar libros por búsqueda y categoría
   const librosFiltrados = libros.filter(
-    (libro) =>
-      libro.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      libro.codigo_interno?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      libro.especificaciones?.toLowerCase().includes(busqueda.toLowerCase())
+    (libro) => {
+      const coincideBusqueda = 
+        libro.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
+        libro.codigo_interno?.toLowerCase().includes(busqueda.toLowerCase()) ||
+        libro.especificaciones?.toLowerCase().includes(busqueda.toLowerCase());
+      
+      const coincideCategoria = categoriaSeleccionada === "" || libro.subcategoria === categoriaSeleccionada;
+
+      return coincideBusqueda && coincideCategoria;
+    }
   );
 
   // Abrir modal para agregar
@@ -312,21 +322,37 @@ function Libros() {
         <div className="table-section">
           <div className="table-header">
             <h2>Base de Datos del Inventario</h2>
-            <div className="inv-buscador-container">
-              <FaSearch className="inv-buscador-icono" />
-              <input
-                type="text"
-                placeholder="Buscar por nombre, código o especificación..."
-                className="inv-buscador"
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-              />
-              {busqueda && (
-                <FaTimes
-                  className="inv-buscador-limpiar"
-                  onClick={() => setBusqueda("")}
+            <div className="inv-buscador-container" style={{ display: 'flex', gap: '10px', background: 'transparent', padding: 0 }}>
+              <select 
+                className="inv-buscador" 
+                style={{ cursor: 'pointer', maxWidth: '200px' }}
+                value={categoriaSeleccionada}
+                onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+              >
+                <option value="">Todas las categorías</option>
+                {categoriasUnicas.map((cat, i) => (
+                  <option key={i} value={cat}>{cat}</option>
+                ))}
+              </select>
+
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: 1, background: '#f5f7fa', borderRadius: '20px', padding: '5px 15px' }}>
+                <FaSearch className="inv-buscador-icono" style={{ position: 'static', marginRight: '10px' }} />
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre, código o especificación..."
+                  className="inv-buscador"
+                  style={{ background: 'transparent', padding: 0 }}
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
                 />
-              )}
+                {busqueda && (
+                  <FaTimes
+                    className="inv-buscador-limpiar"
+                    style={{ position: 'static', marginLeft: '10px' }}
+                    onClick={() => setBusqueda("")}
+                  />
+                )}
+              </div>
             </div>
           </div>
 
