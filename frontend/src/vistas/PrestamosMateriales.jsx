@@ -32,7 +32,7 @@ function PrestamosMateriales() {
   const cargarSolicitudes = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:3000/api/prestamos/todos", {
+      const res = await fetch("/api/prestamos/todos", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -113,7 +113,7 @@ function PrestamosMateriales() {
   const ejecutarDevolucion = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:3000/api/prestamos/" + solicitudActiva.id + "/devolver", {
+      const res = await fetch("/api/prestamos/" + solicitudActiva.id + "/devolver", {
         method: "PUT",
         headers: { "Authorization": "Bearer " + token }
       });
@@ -139,7 +139,7 @@ function PrestamosMateriales() {
     }
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:3000/api/sanciones", {
+      const res = await fetch("/api/sanciones", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -178,7 +178,7 @@ function PrestamosMateriales() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:3000/api/prestamos/${solicitudActiva.id}/procesar`, {
+      const res = await fetch(`/api/prestamos/${solicitudActiva.id}/procesar`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -210,7 +210,7 @@ function PrestamosMateriales() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:3000/api/prestamos/${solicitudActiva.id}/procesar`, {
+      const res = await fetch(`/api/prestamos/${solicitudActiva.id}/procesar`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

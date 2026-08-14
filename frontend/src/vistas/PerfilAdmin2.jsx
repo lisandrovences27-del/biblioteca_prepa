@@ -25,7 +25,7 @@ function PerfilAdmin2() {
       const token = localStorage.getItem("token");
       if (!token) return;
       try {
-        const res = await fetch("http://localhost:3000/api/auth/profile", {
+        const res = await fetch("/api/auth/profile", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -62,7 +62,7 @@ function PerfilAdmin2() {
   const guardarCambios = async () => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch("http://localhost:3000/api/auth/profile", {
+      const res = await fetch("/api/auth/profile", {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -94,7 +94,7 @@ function PerfilAdmin2() {
 
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch("http://localhost:3000/api/auth/change-password", {
+      const res = await fetch("/api/auth/change-password", {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",

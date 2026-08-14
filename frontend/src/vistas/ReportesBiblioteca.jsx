@@ -24,7 +24,7 @@ function ReportesBiblioteca() {
     const fetchDynamicData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:3000/api/reportes/dinamico?mes=${selectedMonth}&tipo=Libro`, {
+        const res = await fetch(`/api/reportes/dinamico?mes=${selectedMonth}&tipo=Libro`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {

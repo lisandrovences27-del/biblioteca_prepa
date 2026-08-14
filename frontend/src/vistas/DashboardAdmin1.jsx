@@ -33,7 +33,7 @@ function DashboardAdmin1() {
         const token = localStorage.getItem("token");
         const headers = { Authorization: `Bearer ${token}` };
 
-        const resPrestamos = await fetch("http://localhost:3000/api/prestamos/todos", { headers });
+        const resPrestamos = await fetch("/api/prestamos/todos", { headers });
         const dataPrestamos = await resPrestamos.json();
         
         if (Array.isArray(dataPrestamos)) {
@@ -44,7 +44,7 @@ function DashboardAdmin1() {
           setStats(prev => ({ ...prev, activos, devueltos }));
         }
 
-        const resLibros = await fetch("http://localhost:3000/api/libros", { headers });
+        const resLibros = await fetch("/api/libros", { headers });
         const dataLibros = await resLibros.json();
         if (Array.isArray(dataLibros)) {
           setStats(prev => ({ ...prev, libros: dataLibros.length }));

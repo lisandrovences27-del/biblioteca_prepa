@@ -25,7 +25,7 @@ function DashboardAlumno() {
     const fetchMisPrestamos = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3000/api/prestamos/mis-prestamos", {
+        const res = await fetch("/api/prestamos/mis-prestamos", {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();

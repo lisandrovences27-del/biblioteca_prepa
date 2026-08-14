@@ -29,7 +29,7 @@ function PerfilAlumno() {
       const token = localStorage.getItem("token");
       if (!token) return;
       try {
-        const res = await fetch("http://localhost:3000/api/auth/profile", {
+        const res = await fetch("/api/auth/profile", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -57,7 +57,7 @@ function PerfilAlumno() {
       const token = localStorage.getItem("token");
       if (!token) return;
       try {
-        const res = await fetch("http://localhost:3000/api/prestamos/mis-prestamos", {
+        const res = await fetch("/api/prestamos/mis-prestamos", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {

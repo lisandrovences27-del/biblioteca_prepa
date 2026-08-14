@@ -67,7 +67,7 @@ function Materiales() {
 
 const cargarCategorias = async () => {
   try {
-    const res = await fetch("http://localhost:3000/api/materiales/categorias", {
+    const res = await fetch("/api/materiales/categorias", {
       headers: { Authorization: `Bearer ${getToken()}` }
     });
     if (res.ok) {
@@ -152,8 +152,8 @@ const guardarMaterial = async(e)=>{
 
     try{
         const url = materialEditar
-        ? `http://localhost:3000/api/materiales/${materialEditar.id_material}`
-        : "http://localhost:3000/api/materiales";
+        ? `/api/materiales/${materialEditar.id_material}`
+        : "/api/materiales";
 
         const method = materialEditar ? "PUT":"POST";
 
@@ -218,7 +218,7 @@ const guardarMaterial = async(e)=>{
 const eliminarMaterial=async()=>{
     try{
         const res=await fetch(
-            `http://localhost:3000/api/materiales/${materialEliminar.id_material}`,
+            `/api/materiales/${materialEliminar.id_material}`,
             {
                 method:"DELETE",
                 headers:{
