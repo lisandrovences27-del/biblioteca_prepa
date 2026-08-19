@@ -32,7 +32,7 @@ exports.solicitarPrestamo = async (req, res) => {
         }
 
         // Verificar si el alumno ya tiene un préstamo pendiente o activo del mismo item
-        let existenteQuery = 'SELECT * FROM prestamos WHERE id_alumno = ? AND estado IN ("Pendiente", "Activo") AND ';
+        let existenteQuery = "SELECT * FROM prestamos WHERE id_alumno = ? AND estado IN ('Pendiente', 'Activo') AND ";
         existenteQuery += tipo_prestamo === 'Libro' ? 'id_libro = ?' : 'id_material = ?';
         
         const [existente] = await pool.query(existenteQuery, [id_alumno, id_item]);

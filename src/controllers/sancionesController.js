@@ -103,7 +103,7 @@ exports.resolverSancion = async (req, res) => {
         );
 
         // Desbloquear al alumno si no tiene otras sanciones activas
-        const [activas] = await pool.query('SELECT id_sancion FROM sanciones WHERE id_alumno = ? AND estado = "Activa"', [id_alumno]);
+        const [activas] = await pool.query("SELECT id_sancion FROM sanciones WHERE id_alumno = ? AND estado = 'Activa'", [id_alumno]);
         if (activas.length === 0) {
              await pool.query('UPDATE usuarios SET bloqueado = FALSE WHERE id_usuario = ?', [id_alumno]);
         }
