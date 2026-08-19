@@ -306,23 +306,36 @@ exports.forgotPassword = async (req, res) => {
             return res.json({ message: 'Modo prueba activo: Revisa la consola del servidor para obtener el enlace de recuperación.' });
         }
 
-        // Enviar correo
-        const mailOptions = {
-            from: process.env.EMAIL_USER || 'no-reply@bibliotecaprepa.edu.mx',
-            to: user.correo_electronico,
-            subject: 'Recuperación de Contraseña - Biblioteca',
-            html: `
-                <h3>Hola ${user.nombre_completo},</h3>
-                <p>Has solicitado restablecer tu contraseña en el Sistema de Biblioteca.</p>
-                <p>Haz clic en el siguiente enlace para crear una nueva contraseña. <b>Este enlace expirará en 15 minutos.</b></p>
-                <a href="${resetLink}">Restablecer mi contraseña</a>
-                <p>Si no solicitaste este cambio, ignora este correo.</p>
-            `
-        };
+        console.log("Intentando enviar correo a:", user.correo_electronico, "vía API de Brevo");
+        
+        const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'api-key': process.env.BREVO_API_KEY,
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                sender: { name: 'Biblioteca CETIS 120', email: 'soportecetis120.2026@gmail.com' },
+                to: [{ email: user.correo_electronico }],
+                subject: 'Recuperación de Contraseña - Biblioteca',
+                htmlContent: `
+                    <h3>Hola ${user.nombre_completo},</h3>
+                    <p>Has solicitado restablecer tu contraseña en el Sistema de Biblioteca.</p>
+                    <p>Haz clic en el siguiente enlace para crear una nueva contraseña. <b>Este enlace expirará en 15 minutos.</b></p>
+                    <a href="${resetLink}">Restablecer mi contraseña</a>
+                    <p>Si no solicitaste este cambio, ignora este correo.</p>
+                `
+            })
+        });
 
-        console.log("Intentando enviar correo a:", user.correo_electronico);
-        await transporter.sendMail(mailOptions);
-        console.log("¡Correo enviado exitosamente a Gmail!");
+        if (!brevoResponse.ok) {
+            const errData = await brevoResponse.json();
+            console.error("Error de Brevo:", errData);
+            throw new Error('Fallo al enviar el correo mediante la API de Brevo');
+        }
+
+        console.log("¡Correo enviado exitosamente a través de Brevo!");
         
         res.json({ message: 'Si el correo existe en nuestro sistema, recibirás un enlace de recuperación.' });
 
