@@ -296,10 +296,10 @@ exports.forgotPassword = async (req, res) => {
 
         const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
 
-        // Si no hay correo configurado, mostramos el enlace en consola para poder probar
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        // Si no hay API key configurada, mostramos el enlace en consola para poder probar
+        if (!process.env.BREVO_API_KEY) {
             console.log('\n=============================================');
-            console.log('FALTA CONFIGURAR EL CORREO EN .env (EMAIL_USER y EMAIL_PASS)');
+            console.log('FALTA CONFIGURAR EL CORREO EN .env (BREVO_API_KEY)');
             console.log('Enlace de recuperación (Modo Prueba):');
             console.log(resetLink);
             console.log('=============================================\n');
