@@ -5,6 +5,10 @@ const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
     secure: false, // true for 465, false for other ports (587 usa STARTTLS)
+    lookup: (hostname, options, callback) => {
+        // Obliga a Node.js a resolver SOLO direcciones IPv4
+        require('dns').lookup(hostname, { family: 4 }, callback);
+    },
     family: 4, // Fuerza el uso de IPv4 (soluciona error ENETUNREACH en Render)
     auth: {
         user: process.env.EMAIL_USER,
