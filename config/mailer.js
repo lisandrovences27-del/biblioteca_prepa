@@ -2,7 +2,10 @@ const nodemailer = require('nodemailer');
 
 // Configuración del transporter usando variables de entorno
 const transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE || 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    family: 4, // Fuerza el uso de IPv4 (soluciona error ENETUNREACH en Render)
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
