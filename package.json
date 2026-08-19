@@ -7,7 +7,7 @@
     "server": "node --watch server.js",
     "client": "npm run dev --prefix frontend",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "start": "node server.js",
+    "start": "node --dns-result-order=ipv4first server.js",
     "build": "npm install --prefix frontend && npm run build --prefix frontend",
     "init-db": "node init-db.js",
     "test": "echo \"Error: no test specified\" && exit 1"
