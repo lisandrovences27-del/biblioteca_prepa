@@ -294,7 +294,9 @@ exports.forgotPassword = async (req, res) => {
             { expiresIn: '15m' }
         );
 
-        const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
+        // Generar enlace dinámico según desde dónde se hizo la petición (localhost o render)
+        const frontendURL = req.headers.origin || 'https://biblioteca-cetis120.onrender.com';
+        const resetLink = `${frontendURL}/reset-password?token=${resetToken}`;
 
         // Si no hay API key configurada, mostramos el enlace en consola para poder probar
         if (!process.env.BREVO_API_KEY) {
